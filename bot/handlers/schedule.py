@@ -27,7 +27,11 @@ async def handle_schedule(callback: CallbackQuery):
         event = events[index]
         event_id, photo_path, description, date, time, location = event
 
-        caption = f"📌 <b>{description}</b>\n🗓 {date} в {time}\n📍 {location}"
+        caption = (
+            f"📌 <b>{description}</b>\n"
+            f"🗓 {date} в {time}\n"
+            f"📍 <a href=\"{location}\">Адрес мероприятия</a>"
+        )
         photo_file = FSInputFile(photo_path)
 
         keyboard = get_event_navigation_keyboard(index, len(events))
