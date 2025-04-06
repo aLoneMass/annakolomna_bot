@@ -1,10 +1,8 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-def get_main_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📅 Расписание мероприятий")]
-        ],
-        resize_keyboard=True,
-        one_time_keyboard=False
+def get_main_inline_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📅 Расписание мероприятий", callback_data="show_schedule")]
+        ]
     )
