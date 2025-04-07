@@ -25,7 +25,7 @@ async def handle_schedule(callback: CallbackQuery):
     else:
         index = 0
         event = events[index]
-        event_id, photo_path, description, date, time, location = event
+        event_id, photo_path, description, date, time, location, payment_link, qr_path = event
 
         caption = (
             f"📌 <b>{description}</b>\n"
