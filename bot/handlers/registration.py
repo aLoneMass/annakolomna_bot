@@ -58,6 +58,8 @@ async def handle_allergy_info(message: Message, state: FSMContext):
         f"После оплаты, пожалуйста, отправьте чек (фото) в ответ на это сообщение."
     )
 
+    print(f"[DEBUG] qr_path = {qr_path}")
+
     qr_file = FSInputFile(qr_path)
     await message.answer_photo(
         photo=qr_file,
