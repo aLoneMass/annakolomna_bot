@@ -254,16 +254,34 @@ async def confirm_old_comment(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Спасибо! Используем предыдущий комментарий.")
     
     # Передаём его как будто пользователь только что его ввёл
-    await handle_allergy_info(
-        Message.model_construct(
-            message_id=callback.message.message_id,
-            chat=callback.message.chat,
-            from_user=callback.from_user,
-            text=comment
-        ),
-        state
+    # Сохраняем комментарий в состояние
+    await state.update_data(comment=previous_comment)
+
+    # Получаем данные
+    data = await state.get_data()
+    event_index = data.get("event_index")
+    events = get_all_events()
+    event = events[event_index]
+
+    payment_link = event[6]
+    qr_path = event[7]
+
+    caption = (
+        f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n"
+        f'<a href="{payment_link}">Оплатить участие</a>\n\n'
+        f"💳 Стоимость: 500₽\n"
+        f"После оплаты, пожалуйста, отправьте чек (фото) в ответ на это сообщение."
     )
-    await callback.answer()
+
+    qr_file = FSInputFile(qr_path)
+    await callback.message.answer_photo(
+        photo=qr_file,
+        caption=caption,
+        parse_mode="HTML"
+    )
+
+    await state.set_state(RegistrationState.waiting_for_payment_check)
+
 
 
 @router.callback_query(F.data == "comment_reenter")
