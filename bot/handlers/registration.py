@@ -92,6 +92,7 @@ async def handle_allergy_info(message: Message, state: FSMContext):
     payment_link = event[6]
     qr_path = event[7]
 
+
     caption = (
         f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n"
         f'<a href="{payment_link}">Оплатить участие</a>\n\n'
@@ -102,13 +103,25 @@ async def handle_allergy_info(message: Message, state: FSMContext):
     print(f"[DEBUG] qr_path = {qr_path}")
 
     qr_file = FSInputFile(qr_path)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="💵 Оплачу наличными", callback_data="pay_cash")]
+    ])
+
     await message.answer_photo(
         photo=qr_file,
         caption=caption,
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=keyboard
     )
 
     await state.set_state(RegistrationState.waiting_for_payment_check)
+
+@router.callback_query(F.data == "pay_cash")
+async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("Спасибо! Мы передадим администратору, что вы оплатите наличными на месте.")
+    await callback.answer()
+    await state.clear()
+
     
 @router.message(RegistrationState.waiting_for_payment_check)
 async def handle_payment_check(message: Message, state: FSMContext):
