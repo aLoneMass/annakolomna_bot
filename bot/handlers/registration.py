@@ -217,27 +217,29 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
 
     # Уведомление администраторам
     for admin_id in ADMINS:
-        await callback.bot.send_message(
-            chat_id=admin_id,
-            from_user = message.from_user
-            username = from_user.username
-            full_name = from_user.full_name
+        
+        chat_id=admin_id,
+        from_user = callback.message.from_user
+        username = from_user.username
+        full_name = from_user.full_name
 
-            if username and full_name:
-                user_display = f"@{username} ({full_name})"
-            elif username:
-                user_display = f"@{username}"
-            else:
-                user_display = full_name or "Без имени"
+        if username and full_name:
+            user_display = f"@{username} ({full_name})"
+        elif username:
+            user_display = f"@{username}"
+        else:
+            user_display = full_name or "Без имени"
 
-            admin_text = (
-                f"📩 Новая запись от {user_display}\n"
-                f"👧 Имя ребёнка: {child_name}\n"
-                f"📅 Мероприятие: {event_date}\n"
-                f"💬 Комментарий: {comment or '—'}\n"
-                f"💰 Оплата: наличными"
-            )
+        admin_text = (
+            f"📩 Новая запись от {user_display}\n"
+            f"👧 Имя ребёнка: {child_name}\n"
+            f"📅 Мероприятие: {event_date}\n"
+            f"💬 Комментарий: {comment or '—'}\n"
+            f"💰 Оплата: наличными"
         )
+        await callback.bot.send_message(chat_id=admin_id, text=admin_text)
+    
+        
 
     await callback.message.answer("Спасибо! Вы записаны на мастер-класс! \nМы передадим администратору, что вы оплатите наличными на месте.")
     await callback.answer()
