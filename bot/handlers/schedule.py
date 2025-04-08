@@ -1,11 +1,17 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, FSInputFile
+from aiogram.types import CallbackQuery, FSInputFile, Message
+from aiogram.filters import Command
 from bot.services.calendar import generate_calendar_image
 from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard
+from . import router
 
 router = Router()
 
+@router.message(Command("schedule"))
+async def handle_schedule_command(message: Message):
+    await handle_schedule(message, {})
+    
 @router.callback_query(F.data == "show_schedule")
 async def handle_schedule(callback: CallbackQuery):
     # Календарь

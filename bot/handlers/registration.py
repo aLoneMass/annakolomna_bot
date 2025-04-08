@@ -44,8 +44,8 @@ async def handle_child_name(message: Message, state: FSMContext):
 # 3. Ввод аллергий → выдаём оплату и QR
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
-    allergy_info = message.text.strip()
-    await state.update_data(allergy_info=allergy_info)
+    comment = message.text.strip()
+     await state.update_data(comment=comment)
 
     data = await state.get_data()
     event_index = data.get("event_index")
