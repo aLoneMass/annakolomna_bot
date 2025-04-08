@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMar
 from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
-from bot.utils.db import get_or_create_user_id
+
 
 
 
@@ -180,7 +180,11 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     child_name = data.get("child_name")
     comment = data.get("comment", "")
     event_index = data.get("event_index")
-    user_id = get_or_create_user_id(tg_user.id, tg_user.username, tg_user.full_name)
+    user_id = get_or_create_user_id(
+        tg_user.id,
+        username=tg_user.username,
+        full_name=tg_user.full_name
+    )
 
     events = get_all_events()
     event = events[event_index]
