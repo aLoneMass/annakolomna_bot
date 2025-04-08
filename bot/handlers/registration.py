@@ -210,13 +210,15 @@ async def handle_payment_check(message: Message, state: FSMContext):
     # Получаем данные из состояния
     data = await state.get_data()
     child_name = data.get("child_name")
-    comment = data.get("comment")
+    comment = data.get("comment", "")
     event_index = data.get("event_index")
 
     events = get_all_events()
     event = events[event_index]
     event_id = event[0]
     event_date = event[3]
+
+    user_id = get_or_create_user_id(message.from_user.id)
 
     import sqlite3
     with sqlite3.connect(DB_PATH) as conn:
