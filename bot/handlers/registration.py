@@ -14,8 +14,7 @@ from config import DB_PATH
 router = Router()
 
 # 1. Обработка кнопки "Записаться"
-#@router.callback_query(F.data.startswith("register_"))
-@router.callback_query(lambda c: c.data and c.data.startswith("register_"))
+@router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
 async def handle_register(callback: CallbackQuery, state: FSMContext):
     event_index = int(callback.data.split("_")[1])
     user = callback.from_user
