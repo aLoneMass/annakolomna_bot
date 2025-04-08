@@ -12,7 +12,7 @@ router = Router()
 # Поддержка команды /schedule из меню
 @router.message(Command("schedule"))
 async def handle_schedule_command(message: Message):
-    await handle_schedule(message, {})
+    await handle_schedule(message)
 
 # Обработка нажатия inline-кнопки "Расписание мероприятий"
 @router.callback_query(F.data == "show_schedule")
