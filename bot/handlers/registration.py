@@ -149,9 +149,62 @@ async def handle_allergy_info(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "pay_cash")
 async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("Спасибо! Вы записаны на мастер-класс! \n Мы передадим администратору, что вы оплатите наличными на месте.")
+    from config import ADMINS
+    import sqlite3
+
+    data = await state.get_data()
+    tg_user = callback.from_user
+    child_name = data.get("child_name")
+    comment = data.get("comment", "")
+    event_index = data.get("event_index")
+
+    events = get_all_events()
+    event = events[event_index]
+    event_id = event[0]
+    event_date = event[3]
+
+    user_id = get_or_create_user_id(tg_user.id)
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT OR IGNORE INTO users (telegram_id, username, full_name) VALUES (?, ?, ?)", (
+            tg_user.id, tg_user.username, tg_user.full_name
+        ))
+        cur.execute("SELECT id FROM users WHERE telegram_id = ?", (tg_user.id,))
+        user_id = cur.fetchone()[0]
+
+        cur.execute("""
+            INSERT INTO registrations (user_id, event_id, child_name, comment)
+            VALUES (?, ?, ?, ?)
+        """, (user_id, event_id, child_name, comment))
+
+        registration_id = cur.lastrowid
+
+        # помечаем, что будет наличная оплата (без чека)
+        cur.execute("""
+            INSERT INTO payments (registration_id, amount, check_path, created_at)
+            VALUES (?, ?, ?, ?)
+        """, (registration_id, "500", "CASH", datetime.datetime.now().isoformat()))
+
+        conn.commit()
+
+    # Уведомление администраторам
+    for admin_id in ADMINS:
+        await callback.bot.send_message(
+            chat_id=admin_id,
+            text=(
+                f"📥 Новая запись от @{tg_user.username or 'пользователя'} (ID: {tg_user.id})\n"
+                f"👧 Имя ребёнка: {child_name}\n"
+                f"📅 Мероприятие: {event_date}\n"
+                f"📝 Комментарий: {comment or 'Нет'}\n"
+                f"💵 Оплата: наличными"
+            )
+        )
+
+    await callback.message.answer("Спасибо! Вы записаны на мастер-класс! \nМы передадим администратору, что вы оплатите наличными на месте.")
     await callback.answer()
     await state.clear()
+
 
 @router.callback_query(F.data == "comment_confirm")
 async def confirm_old_comment(callback: CallbackQuery, state: FSMContext):
@@ -248,10 +301,10 @@ async def handle_payment_check(message: Message, state: FSMContext):
         await message.bot.send_message(
             chat_id=admin_id,
             text=(
-                f"📥 Новая запись от @{tg_user.username} (ID: {tg_user.id})\n"
+                f"📥 Новая запись от @{message.from_user.username or 'пользователя'} (ID: {message.from_user.id})</b>\n"
                 f"👧 Имя ребёнка: {child_name}\n"
                 f"📅 Мероприятие: {event_date}\n"
-                f"📝 Комментарий: {comment}"
+                f"📝 Комментарий: {comment or 'Нет'}"
             )
         )
         if file_ext == "jpg":
