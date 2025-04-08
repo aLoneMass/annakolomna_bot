@@ -48,8 +48,8 @@ async def handle_allergy_info(message: Message, state: FSMContext):
     events = get_all_events()
     event = events[event_index]
 
-    payment_link = event[5]
-    qr_path = event[6]
+    payment_link = event[6]
+    qr_path = event[7]
 
     caption = (
         f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n"
