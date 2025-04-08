@@ -1,7 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, Message
-from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
+from aiogram.types import FSInputFile
 
 from bot.services.calendar import generate_calendar_image
 from bot.services.events import get_all_events
@@ -9,47 +9,58 @@ from bot.keyboards.event_nav import get_event_navigation_keyboard
 
 router = Router()
 
-# Поддержка команды /schedule из меню
+
+# 📅 Обработка команды /schedule
 @router.message(Command("schedule"))
 async def handle_schedule_command(message: Message):
-    await handle_schedule(message)
+    await send_schedule(message)
 
-# Обработка нажатия inline-кнопки "Расписание мероприятий"
+
+# 📅 Обработка кнопки "📅 Расписание мероприятий"
+@router.message(F.text == "📅 Расписание мероприятий")
+async def handle_schedule_text_button(message: Message):
+    await send_schedule(message)
+
+
+# 📅 Обработка нажатия inline-кнопки "Показать расписание"
 @router.callback_query(F.data == "show_schedule")
-async def handle_schedule(callback: CallbackQuery):
+async def handle_schedule_callback(callback: CallbackQuery):
+    await send_schedule(callback.message)
+    await callback.answer()
+
+
+# 🧠 Универсальная функция показа календаря и первого мероприятия
+async def send_schedule(message: Message):
     # Календарь
     calendar_path = generate_calendar_image()
     calendar_file = FSInputFile(calendar_path)
 
-    await callback.message.answer_photo(
+    await message.answer_photo(
         photo=calendar_file,
         caption="📅 Календарь мероприятий на этот месяц"
     )
 
     # Мероприятия
     events = get_all_events()
-
     if not events:
-        await callback.message.answer("Пока нет запланированных мероприятий.")
-    else:
-        index = 0
-        event = events[index]
-        event_id, photo_path, description, date, time, location, payment_link, qr_path = event
+        await message.answer("Пока нет запланированных мероприятий.")
+        return
 
-        caption = (
-            f"📌 <b>{description}</b>\n"
-            f"🗓 {date} в {time}\n"
-            f"📍 <a href=\"{location}\">Адрес мероприятия</a>"
-        )
-        photo_file = FSInputFile(photo_path)
+    index = 0
+    event = events[index]
+    event_id, photo_path, description, date, time, location, payment_link, qr_path = event
 
-        keyboard = get_event_navigation_keyboard(index, len(events))
+    caption = (
+        f"📌 <b>{description}</b>\n"
+        f"🗓 {date} в {time}\n"
+        f"📍 <a href=\"{location}\">Адрес мероприятия</a>"
+    )
+    photo_file = FSInputFile(photo_path)
+    keyboard = get_event_navigation_keyboard(index, len(events))
 
-        await callback.message.answer_photo(
-            photo=photo_file,
-            caption=caption,
-            reply_markup=keyboard,
-            parse_mode="HTML"
-        )
-
-    await callback.answer()
+    await message.answer_photo(
+        photo=photo_file,
+        caption=caption,
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
