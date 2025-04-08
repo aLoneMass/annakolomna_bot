@@ -15,6 +15,27 @@ sys.path.append(str((Path(__file__).resolve().parent.parent)))
 from config import CHECKS_DIR, ADMINS
 from config import DB_PATH
 
+
+import sqlite3
+from config import DB_PATH
+
+def get_or_create_user_id(telegram_id: int, username=None, full_name=None) -> int:
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE telegram_id = ?", (telegram_id,))
+        row = cur.fetchone()
+
+        if row:
+            return row[0]
+        else:
+            cur.execute(
+                "INSERT INTO users (telegram_id, username, full_name) VALUES (?, ?, ?)",
+                (telegram_id, username or '', full_name or '')
+            )
+            conn.commit()
+            return cur.lastrowid
+
+
 router = Router()
 
 # 1. Обработка кнопки "Записаться"
@@ -159,13 +180,13 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     child_name = data.get("child_name")
     comment = data.get("comment", "")
     event_index = data.get("event_index")
+    user_id = get_or_create_user_id(tg_user.id, tg_user.username, tg_user.full_name)
 
     events = get_all_events()
     event = events[event_index]
     event_id = event[0]
     event_date = event[3]
 
-    user_id = get_or_create_user_id(tg_user.id)
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
