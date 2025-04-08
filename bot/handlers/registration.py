@@ -5,7 +5,11 @@ from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
 import os
 import datetime
+import sys
+from pathlib import Path
+sys.path.append(str((Path(__file__).resolve().parent.parent)))
 from config import CHECKS_DIR, ADMINS
+from config import DB_PATH
 
 router = Router()
 
