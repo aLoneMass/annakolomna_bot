@@ -3,6 +3,8 @@ from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMar
 from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
+from bot.utils.db import get_or_create_user_id
+
 
 
 import os
