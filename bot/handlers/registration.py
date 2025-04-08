@@ -45,7 +45,7 @@ async def handle_child_name(message: Message, state: FSMContext):
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
     comment = message.text.strip()
-     await state.update_data(comment=comment)
+    await state.update_data(comment=comment)
 
     data = await state.get_data()
     event_index = data.get("event_index")
