@@ -255,7 +255,7 @@ async def confirm_old_comment(callback: CallbackQuery, state: FSMContext):
     
     # Передаём его как будто пользователь только что его ввёл
     # Сохраняем комментарий в состояние
-    await state.update_data(comment=previous_comment)
+    await state.update_data(comment=comment)
 
     # Получаем данные
     data = await state.get_data()
