@@ -149,7 +149,7 @@ async def handle_allergy_info(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "pay_cash")
 async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("Спасибо! Мы передадим администратору, что вы оплатите наличными на месте.")
+    await callback.message.answer("Спасибо! Вы записаны на мастер-класс! \n Мы передадим администратору, что вы оплатите наличными на месте.")
     await callback.answer()
     await state.clear()
 
