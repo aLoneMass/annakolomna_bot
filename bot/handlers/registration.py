@@ -219,12 +219,23 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     for admin_id in ADMINS:
         await callback.bot.send_message(
             chat_id=admin_id,
-            text=(
-                f"📥 Новая запись от @{tg_user.username or 'пользователя'} (ID: {tg_user.id})\n"
+            from_user = message.from_user
+            username = from_user.username
+            full_name = from_user.full_name
+
+            if username and full_name:
+                user_display = f"@{username} ({full_name})"
+            elif username:
+                user_display = f"@{username}"
+            else:
+                user_display = full_name or "Без имени"
+
+            admin_text = (
+                f"📩 Новая запись от {user_display}\n"
                 f"👧 Имя ребёнка: {child_name}\n"
                 f"📅 Мероприятие: {event_date}\n"
-                f"📝 Комментарий: {comment or 'Нет'}\n"
-                f"💵 Оплата: наличными"
+                f"💬 Комментарий: {comment or '—'}\n"
+                f"💰 Оплата: наличными"
             )
         )
 
