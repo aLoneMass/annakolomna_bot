@@ -71,20 +71,29 @@ async def handle_allergy_info(message: Message, state: FSMContext):
     
 @router.message(RegistrationState.waiting_for_payment_check)
 async def handle_payment_check(message: Message, state: FSMContext):
-    if not message.photo:
-        await message.answer("Пожалуйста, пришлите чек как фотографию.")
-        return
-
-    # Получаем наибольшее качество фото
-    photo = message.photo[-1]
-    file_id = photo.file_id
     tg_user = message.from_user
 
-    # Сохраняем чек на диск
+    file = None
+    file_ext = None
+
+    if message.photo:
+        file = message.photo[-1]
+        file_ext = "jpg"
+    elif message.document:
+        if message.document.mime_type == "application/pdf":
+            file = message.document
+            file_ext = "pdf"
+
+    if not file:
+        await message.answer("Пожалуйста, пришлите чек как фотографию или PDF-документ.")
+        return
+
+    # Сохраняем файл
     now_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{tg_user.id}_{now_str}.jpg"
+    filename = f"{tg_user.id}_{now_str}.{file_ext}"
     full_path = os.path.join(CHECKS_DIR, filename)
-    await photo.download(destination=full_path)
+
+    await message.bot.download(file.file_id, destination=full_path)
 
     # Получаем данные из состояния
     data = await state.get_data()
@@ -92,29 +101,20 @@ async def handle_payment_check(message: Message, state: FSMContext):
     comment = data.get("comment")
     event_index = data.get("event_index")
 
-    from bot.services.events import get_all_events
     events = get_all_events()
     event = events[event_index]
     event_id = event[0]
     event_date = event[3]
 
-    # Сохраняем в базу
     import sqlite3
-    from config import DB_PATH
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
-
-        # users
         cur.execute("INSERT OR IGNORE INTO users (telegram_id, username, full_name) VALUES (?, ?, ?)", (
-            tg_user.id,
-            tg_user.username,
-            tg_user.full_name
+            tg_user.id, tg_user.username, tg_user.full_name
         ))
-
         cur.execute("SELECT id FROM users WHERE telegram_id = ?", (tg_user.id,))
         user_id = cur.fetchone()[0]
 
-        # registrations
         cur.execute("""
             INSERT INTO registrations (user_id, event_id, child_name, comment)
             VALUES (?, ?, ?, ?)
@@ -122,7 +122,6 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
         registration_id = cur.lastrowid
 
-        # payments
         cur.execute("""
             INSERT INTO payments (registration_id, amount, check_path, created_at)
             VALUES (?, ?, ?, ?)
@@ -130,18 +129,22 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
         conn.commit()
 
-    # Уведомление админу
+    # Отправка админу
     for admin_id in ADMINS:
         await message.bot.send_message(
             chat_id=admin_id,
             text=(
-                f"📥 Новая запись на мероприятие от @{tg_user.username} (ID: {tg_user.id})\n"
-                f"🧒 Имя ребёнка: {child_name}\n"
-                f"📅 Дата мероприятия: {event_date}\n"
+                f"📥 Новая запись от @{tg_user.username} (ID: {tg_user.id})\n"
+                f"👧 Имя ребёнка: {child_name}\n"
+                f"📅 Мероприятие: {event_date}\n"
                 f"📝 Комментарий: {comment}"
             )
         )
-        await message.bot.send_photo(chat_id=admin_id, photo=FSInputFile(full_path))
+        if file_ext == "jpg":
+            await message.bot.send_photo(chat_id=admin_id, photo=FSInputFile(full_path))
+        elif file_ext == "pdf":
+            await message.bot.send_document(chat_id=admin_id, document=FSInputFile(full_path))
 
     await message.answer("✅ Спасибо! Ваша запись сохранена. До встречи на мастер-классе! 🧡")
     await state.clear()
+
