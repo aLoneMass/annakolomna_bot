@@ -14,19 +14,55 @@ from config import DB_PATH
 router = Router()
 
 # 1. Обработка кнопки "Записаться"
-@router.callback_query(F.data.startswith("signup_"))
-async def handle_signup(callback: CallbackQuery, state: FSMContext):
-    index = int(callback.data.split("_")[1])
-    events = get_all_events()
+@router.callback_query(F.data.startswith("register_"))
+async def handle_register(callback: CallbackQuery, state: FSMContext):
+    event_index = int(callback.data.split("_")[1])
+    user = callback.from_user
 
-    if index >= len(events):
-        await callback.answer("Ошибка: мероприятие не найдено.")
-        return
+    # Сохраняем индекс события
+    await state.update_data(event_index=event_index)
 
-    event = events[index]
-    await state.update_data(event_index=index)
+    # Проверка: есть ли уже имя ребёнка для этого telegram_id
+    import sqlite3
+    from config import DB_PATH
 
-    await callback.message.answer("👶 Введите имя ребёнка для записи:")
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT r.child_name FROM registrations r
+            JOIN users u ON u.id = r.user_id
+            WHERE u.telegram_id = ?
+            ORDER BY r.id DESC LIMIT 1
+        """, (user.id,))
+        row = cur.fetchone()
+
+    if row:
+        child_name = row[0]
+        await state.update_data(child_name=child_name)
+        await callback.message.answer(
+            f"👧 Ранее вы записывали ребёнка по имени <b>{child_name}</b>.\n"
+            "Хотите записать его на этот мастер-класс?",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="✅ Да", callback_data="confirm_child"),
+                 InlineKeyboardButton(text="❌ Указать другое", callback_data="enter_new_child")]
+            ]),
+            parse_mode="HTML"
+        )
+        await state.set_state(RegistrationState.confirming_child)
+    else:
+        await callback.message.answer("👧 Введите имя ребёнка, которого вы хотите записать:")
+        await state.set_state(RegistrationState.entering_child_name)
+
+@router.callback_query(F.data == "confirm_child")
+async def confirm_existing_child(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("📝 Укажите, есть ли аллергии или пожелания для ребёнка.")
+    await state.set_state(RegistrationState.entering_allergy_info)
+    await callback.answer()
+
+
+@router.callback_query(F.data == "enter_new_child")
+async def enter_new_child(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("👧 Введите новое имя ребёнка:")
     await state.set_state(RegistrationState.entering_child_name)
     await callback.answer()
 
