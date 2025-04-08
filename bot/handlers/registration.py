@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
 
+
 import os
 import datetime
 import sys
@@ -56,9 +57,39 @@ async def handle_register(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "confirm_child")
 async def confirm_existing_child(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("📝 Укажите, есть ли аллергии или пожелания для ребёнка.")
-    await state.set_state(RegistrationState.entering_allergy_info)
+    # Получим комментарий из прошлой записи (если есть)
+    tg_user = callback.from_user
+
+    import sqlite3
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT r.comment FROM registrations r
+            JOIN users u ON u.id = r.user_id
+            WHERE u.telegram_id = ?
+            ORDER BY r.id DESC LIMIT 1
+        """, (tg_user.id,))
+        row = cur.fetchone()
+
+    if row and row[0]:
+        comment = row[0]
+        await state.update_data(comment=comment)
+
+        await callback.message.answer(
+            f"📝 Ранее вы указывали комментарий:\n<code>{comment}</code>\nИспользовать его снова?",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="✅ Да", callback_data="comment_confirm")],
+                [InlineKeyboardButton(text="❌ Указать новый", callback_data="comment_reenter")]
+            ]),
+            parse_mode="HTML"
+        )
+        await state.set_state(RegistrationState.confirming_comment)
+    else:
+        await callback.message.answer("📝 Укажите, есть ли аллергии или пожелания для ребёнка.")
+        await state.set_state(RegistrationState.entering_allergy_info)
+
     await callback.answer()
+
 
 
 @router.callback_query(F.data == "enter_new_child")
@@ -121,6 +152,33 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Спасибо! Мы передадим администратору, что вы оплатите наличными на месте.")
     await callback.answer()
     await state.clear()
+
+@router.callback_query(F.data == "comment_confirm")
+async def confirm_old_comment(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    comment = data.get("comment")
+
+    await callback.message.answer("Спасибо! Используем предыдущий комментарий.")
+    
+    # Передаём его как будто пользователь только что его ввёл
+    await handle_allergy_info(
+        Message.model_construct(
+            message_id=callback.message.message_id,
+            chat=callback.message.chat,
+            from_user=callback.from_user,
+            text=comment
+        ),
+        state
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "comment_reenter")
+async def reenter_comment(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("✍️ Хорошо, введите новый комментарий.")
+    await state.set_state(RegistrationState.entering_allergy_info)
+    await callback.answer()
+
 
     
 @router.message(RegistrationState.waiting_for_payment_check)

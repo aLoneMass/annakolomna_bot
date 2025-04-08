@@ -5,5 +5,7 @@ class RegistrationState(StatesGroup):
     confirming_child = State()  # 🆕 новое состояние
     entering_child_name = State()
     entering_allergy_info = State()
+    confirming_comment = State()
     waiting_for_payment_check = State()
+    
 
