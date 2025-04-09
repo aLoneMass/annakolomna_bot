@@ -219,7 +219,8 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     for admin_id in ADMINS:
         
         chat_id=admin_id,
-        from_user = callback.message.from_user
+        #from_user = callback.message.from_user
+        from_user = callback.from_user
         username = from_user.username
         full_name = from_user.full_name
 
@@ -234,6 +235,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
             f"📩 Новая запись от {user_display}\n"
             f"👧 Имя ребёнка: {child_name}\n"
             f"📅 Мероприятие: {event_date}\n"
+            f"🕒 Время: {event_time}\n"
             f"💬 Комментарий: {comment or '—'}\n"
             f"💰 Оплата: наличными"
         )
@@ -333,6 +335,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
     event = events[event_index]
     event_id = event[0]
     event_date = event[3]
+    event_time = event[4]
 
     user_id = get_or_create_user_id(message.from_user.id)
 
@@ -367,6 +370,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
                 f"📥 Новая запись от @{message.from_user.username or 'пользователя'} (ID: {message.from_user.id})</b>\n"
                 f"👧 Имя ребёнка: {child_name}\n"
                 f"📅 Мероприятие: {event_date}\n"
+                f"🕒 Время: {event_time}\n"
                 f"📝 Комментарий: {comment or 'Нет'}"
             )
         )
