@@ -190,6 +190,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     event = events[event_index]
     event_id = event[0]
     event_date = event[3]
+    event_time = event[4]
 
 
     with sqlite3.connect(DB_PATH) as conn:

@@ -2,7 +2,8 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from config import BOT_TOKEN
-from bot.handlers import start, schedule, registration
+from bot.handlers import start, schedule, registration, admin
+
 
 async def setup_bot_commands(bot: Bot):
     commands = [
@@ -19,6 +20,7 @@ async def main():
     dp.include_router(start.router)
     dp.include_router(schedule.router)
     dp.include_router(registration.router)
+    dp.include_router(admin.router)
 
     print('Бот запущен')
 
