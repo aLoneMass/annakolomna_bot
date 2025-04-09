@@ -21,6 +21,7 @@ async def admin_menu(message: Message):
 
 @router.callback_query(F.data == "show_registrations")
 async def show_registrations(callback: CallbackQuery):
+    
     registrations = get_all_registrations()
     if not registrations:
         await callback.message.answer("Пока нет записей.")
