@@ -274,10 +274,15 @@ async def confirm_old_comment(callback: CallbackQuery, state: FSMContext):
     )
 
     qr_file = FSInputFile(qr_path)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="💵 Оплачу наличными", callback_data="pay_cash")]
+    ])
+
     await callback.message.answer_photo(
         photo=qr_file,
         caption=caption,
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=keyboard
     )
 
     await state.set_state(RegistrationState.waiting_for_payment_check)
