@@ -2,6 +2,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from config import ADMINS  # ADMINS берется из .env, например, [123456789, 987654321]
+from database import get_all_registrations
 
 router = Router()
 
@@ -23,7 +24,6 @@ async def admin_menu(message: Message):
 
 @router.callback_query(lambda c: c.data == "show_registrations")
 async def show_registrations(callback: CallbackQuery):
-    from database import get_all_registrations
     registrations = get_all_registrations()
     if not registrations:
         await callback.message.answer("Пока нет записей.")
@@ -31,16 +31,17 @@ async def show_registrations(callback: CallbackQuery):
 
     text = "📋 <b>Список записей:</b>\n\n"
     for reg in registrations:
-        username, child, comment, event_date, event_time, payment_method = reg
+        username, child, comment, child_age, event_date, event_time, payment_method = reg
         text += (
-            f"👤 Пользователь: <code>{username}</code>\n"
-            f"👧 Ребёнок: {child}\n"
+            f"👤 Пользователь: {username}\n"
+            f"👧 Ребёнок: {child} (возраст: {child_age or 'не указан'})\n"
             f"📅 Дата: {event_date} {event_time}\n"
             f"💬 Комментарий: {comment or '—'}\n"
             f"💰 Оплата: {payment_method}\n\n"
         )
 
     await callback.message.answer(text)
+
 
 
 
