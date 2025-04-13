@@ -9,6 +9,7 @@ async def setup_bot_commands(bot: Bot):
     commands = [
         BotCommand(command="schedule", description="📅 Расписание мероприятий"),
         BotCommand(command="start", description="🔁 Перезапустить бота"),
+        BotCommand(command="admin", description="👨‍💼 Админ-меню")
     ]
     await bot.set_my_commands(commands)
 
