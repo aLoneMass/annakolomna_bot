@@ -1,6 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
 
@@ -248,11 +249,13 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     for admin_id in ADMINS:
         
         chat_id=admin_id,
-        #from_user = callback.message.from_user
-        from_user = callback.from_user
+        # Получаем данные о пользователе из сообщения (клиент, который совершает платеж)
+        from_user = message.from_user
         username = from_user.username
         full_name = from_user.full_name
 
+        # Формируем отображаемое имя: если и username и full_name присутствуют, выводим их вместе;
+        # если нет – выводим то, что есть.
         if username and full_name:
             user_display = f"@{username} ({full_name})"
         elif username:
@@ -261,14 +264,14 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
             user_display = full_name or "Без имени"
 
         admin_text = (
-            f"📩 Новая запись от {user_display}\n"
+            f"📥 Новая запись от {user_display}\n"
             f"👧 Имя ребёнка: {child_name}\n"
             f"📅 Мероприятие: {event_date}\n"
             f"🕒 Время: {event_time}\n"
-            f"💬 Комментарий: {comment or '—'}\n"
-            f"💰 Оплата: наличными"
+            f"📝 Комментарий: {comment or 'Нет'}"
         )
-        await callback.bot.send_message(chat_id=admin_id, text=admin_text)
+        await message.bot.send_message(chat_id=admin_id, text=admin_text)
+
     
         
 
@@ -395,6 +398,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
     # Отправка админу
     for admin_id in ADMINS:
+        print("[DEBUG] from_user:", callback.from_user)
         await message.bot.send_message(
             chat_id=admin_id,
             text=(
