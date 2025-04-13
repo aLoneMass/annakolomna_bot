@@ -23,8 +23,7 @@ async def admin_menu(message: Message):
 
 @router.callback_query(lambda c: c.data == "show_registrations")
 async def show_registrations(callback: CallbackQuery):
-    # Здесь должен быть код получения данных записей; пример:
-    from database import get_all_registrations  # функция для извлечения регистраций из БД
+    from database import get_all_registrations
     registrations = get_all_registrations()
     if not registrations:
         await callback.message.answer("Пока нет записей.")
@@ -32,15 +31,17 @@ async def show_registrations(callback: CallbackQuery):
 
     text = "📋 <b>Список записей:</b>\n\n"
     for reg in registrations:
-        user, child, comment, event_date, event_time, payment = reg
+        username, child, comment, event_date, event_time, payment_method = reg
         text += (
-            f"👤 Пользователь: <code>{user}</code>\n"
+            f"👤 Пользователь: <code>{username}</code>\n"
             f"👧 Ребёнок: {child}\n"
             f"📅 Дата: {event_date} {event_time}\n"
             f"💬 Комментарий: {comment or '—'}\n"
-            f"💰 Оплата: {payment}\n\n"
+            f"💰 Оплата: {payment_method}\n\n"
         )
+
     await callback.message.answer(text)
+
 
 
 @router.callback_query(lambda c: c.data == "show_events")

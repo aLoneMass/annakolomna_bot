@@ -5,10 +5,20 @@ def get_all_registrations():
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT u.username, r.child_name, r.comment, e.date, e.time, r.payment_type
+            SELECT 
+                u.username, 
+                r.child_name, 
+                r.comment, 
+                e.date, 
+                e.time, 
+                CASE 
+                    WHEN p.check_path = 'CASH' THEN 'Наличными' 
+                    ELSE 'Онлайн (чек отправлен)' 
+                END AS payment_method
             FROM registrations r
             JOIN users u ON u.id = r.user_id
             JOIN events e ON e.id = r.event_id
-            ORDER BY e.date DESC, e.time DESC
+            JOIN payments p ON p.registration_id = r.id
+            ORDER BY e.date DESC, e.time DESC;
         """)
         return cur.fetchall()
