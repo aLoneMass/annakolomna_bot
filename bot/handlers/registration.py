@@ -65,10 +65,9 @@ async def handle_register(callback: CallbackQuery, state: FSMContext):
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT r.child_name FROM registrations r
-            JOIN users u ON u.id = r.user_id
-            WHERE u.telegram_id = ?
-            ORDER BY r.id DESC LIMIT 1
+            SELECT child_name, comment, child_age FROM users
+            WHERE telegram_id = ?
+            LIMIT 1
         """, (user.id,))
         row = cur.fetchone()
 
