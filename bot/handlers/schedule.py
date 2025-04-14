@@ -1,17 +1,16 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, FSInputFile
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 
-from bot.services.calendar import generate_calendar_image
 from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard_with_signup
 
 router = Router()
-print("[DEBUG] команда /schedule получена")
 
 # 📅 Обработка команды /schedule
 @router.message(Command("schedule"))
 async def handle_schedule_command(message: Message):
+    print("[DEBUG] команда /schedule получена")
     await send_schedule(message)
 
 
@@ -28,16 +27,8 @@ async def handle_schedule_callback(callback: CallbackQuery):
     await callback.answer()
 
 
-# 🧠 Универсальная функция показа календаря и первого мероприятия
+# 🧠 Универсальная функция показа мероприятия
 async def send_schedule(message: Message):
-    #calendar_path = generate_calendar_image()
-    #calendar_file = FSInputFile(calendar_path)
-
-    #await message.answer_photo(
-    #    photo=calendar_file,
-    #    caption="📅 Календарь мероприятий на этот месяц"
-    #)
-
     events = get_all_events()
     if not events:
         await message.answer("Пока нет запланированных мероприятий.")
@@ -47,18 +38,16 @@ async def send_schedule(message: Message):
     event = events[index]
     event_id, description, date, time, qr_path, payment_link = event
 
-
     caption = (
         f"📌 <b>{description}</b>\n"
         f"🗓 <b>{date}</b> в <b>{time}</b>\n"
-        f"📍 <a href=\"{location}\">Адрес мероприятия</a>"
+        f"💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
     )
-    photo_file = FSInputFile(photo_path)
+
     keyboard = get_event_navigation_keyboard_with_signup(index, len(events))
 
-    await message.answer_photo(
-        photo=photo_file,
-        caption=caption,
+    await message.answer(
+        text=caption,
         reply_markup=keyboard,
         parse_mode="HTML"
     )
