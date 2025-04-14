@@ -5,8 +5,17 @@ def get_all_events():
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT id, description, date, time, payment_link, qr_path
+            SELECT
+                id,
+                description,
+                date,
+                time,
+                qr_path,
+                payment_link,
+                photo_path,
+                location
             FROM events
-            ORDER BY date ASC, time ASC
+            ORDER BY date, time
         """)
         return cur.fetchall()
+

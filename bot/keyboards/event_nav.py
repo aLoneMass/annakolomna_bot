@@ -1,5 +1,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
+
+
 def get_event_navigation_keyboard_with_signup(index: int, total: int) -> InlineKeyboardMarkup:
     buttons = []
 
