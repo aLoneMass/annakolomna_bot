@@ -12,7 +12,6 @@ def get_all_events():
                 time,
                 qr_path,
                 payment_link,
-                photo_path,
                 location
             FROM events
             ORDER BY date, time
