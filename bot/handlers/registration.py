@@ -81,7 +81,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
 
     event = get_all_events()[data['event_index']]
-    event_id, _, _, event_date, event_time, _, payment_link, qr_path = event
+    event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
