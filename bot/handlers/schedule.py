@@ -7,6 +7,7 @@ from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard_with_signup
 
 router = Router()
+print("[DEBUG] команда /schedule получена")
 
 # 📅 Обработка команды /schedule
 @router.message(Command("schedule"))
