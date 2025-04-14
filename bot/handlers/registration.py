@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
 import os
+import re
 import datetime
 from config import CHECKS_DIR, ADMINS, DB_PATH
 
