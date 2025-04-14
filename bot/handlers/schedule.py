@@ -45,7 +45,8 @@ async def send_schedule(message: Message):
 
     index = 0
     event = events[index]
-    event_id, photo_path, description, date, time, location, payment_link, qr_path = event
+    event_id, description, date, time, qr_path, payment_link = event
+
 
     caption = (
         f"📌 <b>{description}</b>\n"
