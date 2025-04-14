@@ -60,7 +60,7 @@ async def handle_child_name(message: Message, state: FSMContext):
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
     await state.update_data(comment=message.text.strip())
-    await message.answer("🎂 Укажите день рождения ребенка в формате 20020-05-24):")
+    await message.answer("🎂 Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ:")
     await state.set_state(RegistrationState.entering_birth_date)
 
 # -- Возраст ребёнка --
@@ -78,7 +78,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     data = await state.get_data()
     user = message.from_user
     user_id = get_or_create_user(user.id, user.username, user.full_name)
-    child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['child_age'])
+    child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
 
     event = get_all_events()[data['event_index']]
     event_id, _, _, event_date, event_time, _, payment_link, qr_path = event
