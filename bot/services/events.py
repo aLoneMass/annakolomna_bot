@@ -7,12 +7,15 @@ def get_all_events():
         cur.execute("""
             SELECT
                 id,
+                title,
                 description,
                 date,
                 time,
+                price,
                 qr_path,
                 payment_link,
-                location
+                location,
+                photo_path
             FROM events
             ORDER BY date, time
         """)
