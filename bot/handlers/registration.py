@@ -24,20 +24,20 @@ def get_or_create_user(telegram_id, username=None, full_name=None):
         return cur.lastrowid
 
 # -- Утилита создания или получения ребенка --
-def get_or_create_child(user_id, child_name, comment, child_age):
+def get_or_create_child(user_id, child_name, comment, birth_date):
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT id FROM children
-            WHERE user_id = ? AND child_name = ? AND comment = ? AND child_age = ?
-        """, (user_id, child_name, comment, child_age))
+            WHERE user_id = ? AND child_name = ? AND comment = ? AND birth_date = ?
+        """, (user_id, child_name, comment, birth_date))
         row = cur.fetchone()
         if row:
             return row[0]
         cur.execute("""
-            INSERT INTO children (user_id, child_name, comment, child_age, birth_date)
+            INSERT INTO children (user_id, child_name, comment, birth_date)
             VALUES (?, ?, ?, ?)
-        """, (user_id, child_name, comment, child_age, birth_date ))
+        """, (user_id, child_name, comment, birth_date ))
         return cur.lastrowid
 
 # -- Начало регистрации --
