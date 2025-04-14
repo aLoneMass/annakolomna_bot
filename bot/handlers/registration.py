@@ -34,9 +34,9 @@ def get_or_create_child(user_id, child_name, comment, child_age):
         if row:
             return row[0]
         cur.execute("""
-            INSERT INTO children (user_id, child_name, comment, child_age)
+            INSERT INTO children (user_id, child_name, comment, child_age, birth_date)
             VALUES (?, ?, ?, ?)
-        """, (user_id, child_name, comment, child_age))
+        """, (user_id, child_name, comment, child_age, birth_date ))
         return cur.lastrowid
 
 # -- Начало регистрации --
@@ -59,19 +59,21 @@ async def handle_child_name(message: Message, state: FSMContext):
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
     await state.update_data(comment=message.text.strip())
-    await message.answer("🎂 Укажите возраст ребёнка (числом):")
-    await state.set_state(RegistrationState.entering_child_age)
+    await message.answer("🎂 Укажите день рождения ребенка в формате 20020-05-24):")
+    await state.set_state(RegistrationState.entering_birth_date)
 
 # -- Возраст ребёнка --
-@router.message(RegistrationState.entering_child_age)
-async def handle_child_age(message: Message, state: FSMContext):
-    try:
-        child_age = int(message.text.strip())
-    except ValueError:
-        await message.answer("Пожалуйста, введите возраст числом.")
+@router.message(RegistrationState.entering_birth_date)
+async def handle_child_birth_date(message: Message, state: FSMContext):
+    birth_date = message.text.strip()
+
+    # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
+    if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", birth_date):
+        await message.answer("❗ Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ.")
         return
 
-    await state.update_data(child_age=child_age)
+
+    await state.update_data(birth_date=birth_date)
     data = await state.get_data()
     user = message.from_user
     user_id = get_or_create_user(user.id, user.username, user.full_name)

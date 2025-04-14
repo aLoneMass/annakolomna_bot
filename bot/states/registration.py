@@ -6,7 +6,7 @@ class RegistrationState(StatesGroup):
     entering_child_name = State()
     entering_allergy_info = State()
     confirming_comment = State()
-    entering_child_age = State()  # 🆕 новое состояние
+    entering_birth_date = State()  # 🆕 новое состояние
     waiting_for_payment_check = State()
     
 
