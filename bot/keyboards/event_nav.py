@@ -1,24 +1,22 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-def get_event_navigation_keyboard(event_index: int, total_events: int):
+def get_event_navigation_keyboard_with_signup(index: int, total: int) -> InlineKeyboardMarkup:
     buttons = []
 
-    # Назад
-    if event_index > 0:
-        buttons.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"event_{event_index - 1}"))
-    else:
-        buttons.append(InlineKeyboardButton(text="◀️ Назад", callback_data="disabled"))
+    nav_row = []
+    if index > 0:
+        nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{index}"))
+    if index < total - 1:
+        nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{index}"))
+    if nav_row:
+        buttons.append(nav_row)
 
-    # Далее
-    if event_index < total_events - 1:
-        buttons.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"event_{event_index + 1}"))
-    else:
-        buttons.append(InlineKeyboardButton(text="▶️ Далее", callback_data="disabled"))
+    buttons.append([
+        InlineKeyboardButton(text="✅ Записаться", callback_data=f"signup_{index}")
+    ])
+    buttons.append([
+        InlineKeyboardButton(text="❌ Закрыть", callback_data="close")
+    ])
 
-    # Записаться и Выход
-    buttons_bottom = [
-        InlineKeyboardButton(text="✅ Записаться", callback_data=f"signup_{event_index}"),
-        InlineKeyboardButton(text="❌ Выход", callback_data="exit")
-    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-    return InlineKeyboardMarkup(inline_keyboard=[buttons, buttons_bottom])
