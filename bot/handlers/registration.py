@@ -8,6 +8,8 @@ import os
 import re
 import datetime
 from config import CHECKS_DIR, ADMINS, DB_PATH
+from bot.utils.notifications import notify_admins_about_registration
+from config import ADMINS  # список ID из .env
 
 router = Router()
 
@@ -103,7 +105,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 
     await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
     await state.update_data(user_id=user_id, registration_id=registration_id)
-    await state.set_state(RegistrationState.waiting_for_payment_check)
+    await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
 
 # -- Оплата наличными --
 @router.callback_query(F.data == "pay_cash")
@@ -116,8 +118,23 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
         cur.execute("INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)",
                     (data['registration_id'], data['user_id'], "наличными", "CASH"))
 
+
+    #вызовем функцию уведомления администратора и передадим данные
+    await notify_admins_about_registration(
+        bot=bot,
+        admins=ADMINS,
+        parent_name=full_name,
+        child_name=child_name,
+        birth_date=birth_date,
+        comment=comment,
+        event_title=event_title,
+        event_date=event_date,
+        event_time=event_time,
+    )
+
     await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
     await callback.answer()
+    await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
     await state.clear()
 
 # -- Получение чека --
@@ -142,6 +159,21 @@ async def handle_payment_check(message: Message, state: FSMContext):
         cur = conn.cursor()
         cur.execute("INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)",
                     (data['registration_id'], data['user_id'], "онлайн", full_path))
+        #вызовем функцию уведомления администратора и передадим данные
+    await notify_admins_about_registration(
+        bot=bot,
+        admins=ADMINS,
+        parent_name=full_name,
+        child_name=child_name,
+        birth_date=birth_date,
+        comment=comment,
+        event_title=event_title,
+        event_date=event_date,
+        event_time=event_time,
+    )
 
     await message.answer("✅ Спасибо! Чек получен. До встречи на мастер-классе!")
     await state.clear()
+    
+
+
