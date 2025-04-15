@@ -1,6 +1,7 @@
 import sqlite3
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, Bot
+from aiogram.utils.markdown import hbold
 from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
@@ -120,16 +121,18 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
 
 
     #вызовем функцию уведомления администратора и передадим данные
+    data = await state.get_data()
+
     await notify_admins_about_registration(
         bot=callback.message.bot,
         admins=ADMINS,
-        parent_name=full_name,
-        child_name=child_name,
-        birth_date=birth_date,
-        comment=comment,
-        event_title=event_title,
-        event_date=event_date,
-        event_time=event_time,
+        parent_name=callback.from_user.full_name,
+        child_name=data["child_name"],
+        birth_date=data["birth_date"],
+        comment=data["comment"],
+        event_title=data["event_title"],
+        event_date=data["event_date"],
+        event_time=data["event_time"],
     )
 
     await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
@@ -159,21 +162,61 @@ async def handle_payment_check(message: Message, state: FSMContext):
         cur = conn.cursor()
         cur.execute("INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)",
                     (data['registration_id'], data['user_id'], "онлайн", full_path))
-        #вызовем функцию уведомления администратора и передадим данные
+        
+
+    #вызовем функцию уведомления администратора и передадим данные
+    data = await state.get_data()
+
     await notify_admins_about_registration(
-        bot=bot,
+        bot=callback.message.bot,
         admins=ADMINS,
-        parent_name=full_name,
-        child_name=child_name,
-        birth_date=birth_date,
-        comment=comment,
-        event_title=event_title,
-        event_date=event_date,
-        event_time=event_time,
+        parent_name=callback.from_user.full_name,
+        child_name=data["child_name"],
+        birth_date=data["birth_date"],
+        comment=data["comment"],
+        event_title=data["event_title"],
+        event_date=data["event_date"],
+        event_time=data["event_time"],
     )
+
 
     await message.answer("✅ Спасибо! Чек получен. До встречи на мастер-классе!")
     await state.clear()
     
+
+#Отправка уведомлений администраторам
+async def notify_admins_about_registration(
+    bot: Bot,
+    admins: list[int],
+    parent_name: str,
+    child_name: str,
+    birth_date: str,
+    comment: str,
+    event_title: str,
+    event_date: str,
+    event_time: str,
+):
+    """
+    Уведомление администраторов о новой записи
+    """
+    text = (
+        f"📢 {hbold('Новая запись!')}\n\n"
+        f"👤 Родитель: {parent_name}\n"
+        f"👶 Ребёнок: {child_name}\n"
+        f"🎂 День рождения: {birth_date}\n"
+        f"📌 Комментарий: {comment or '–'}\n\n"
+        f"🎨 Мастер-класс: {event_title}\n"
+        f"📅 Дата: {event_date}\n"
+        f"🕒 Время: {event_time}"
+    )
+
+    for admin_id in admins:
+        try:
+            await bot.send_message(admin_id, text)
+        except Exception as e:
+            print(f"[ERROR] Не удалось отправить сообщение админу {admin_id}: {e}")
+
+
+
 
 
