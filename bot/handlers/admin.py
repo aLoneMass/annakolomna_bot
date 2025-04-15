@@ -29,7 +29,7 @@ async def show_registrations(callback: CallbackQuery):
                 u.username,
                 c.child_name,
                 c.comment,
-                c.child_age,
+                c.birth_date,
                 e.date,
                 e.time,
                 CASE 
@@ -52,10 +52,10 @@ async def show_registrations(callback: CallbackQuery):
 
     text = "📋 <b>Список записей:</b>\n\n"
     for reg in rows:
-        username, child, comment, child_age, date, time, payment_method = reg
+        username, child, comment, birth_date, date, time, payment_method = reg
         text += (
             f"👤 Пользователь: @{username or 'без username'}\n"
-            f"👧 Ребёнок: {child} (возраст: {child_age or 'не указан'})\n"
+            f"👧 Ребёнок: {child} (возраст: {birth_date or 'не указан'})\n"
             f"📅 Дата: {date} {time}\n"
             f"💬 Комментарий: {comment or '—'}\n"
             f"💰 Оплата: {payment_method}\n\n"
