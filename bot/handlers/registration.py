@@ -158,7 +158,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     )
 
     await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
-    Aawait callback.answer()
+    await callback.answer()
     await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
     await state.clear()
 
@@ -193,7 +193,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
     await notify_admins_about_registration(
         bot=message.bot,
         admins=ADMINS,
-        parent_name=callback.from_user.full_name,
+        parent_name=message.from_user.full_name,
         child_name=data["child_name"],
         birth_date=data["birth_date"],
         comment=data["comment"],
