@@ -157,10 +157,10 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
         event_time=data["event_time"],
     )
 
-    #await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
-    #await callback.answer()
+    await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
+    Aawait callback.answer()
     await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
-    #await state.clear()
+    await state.clear()
 
 # -- Получение чека --
 @router.message(RegistrationState.waiting_for_payment_check)
@@ -205,12 +205,11 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
     await message.answer("✅ Спасибо! Чек получен. До встречи на мастер-классе!")
     await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
-    #await state.clear()
+    await state.clear()
     
 
 #Отправка уведомлений администраторам
-@router.message(RegistrationState.notify_admins_about_registration)
-#async def handle_payment_check(message: Message, state: FSMContext):
+#@router.message(RegistrationState.notify_admins_about_registration)
 async def notify_admins_about_registration(
     bot: Bot,
     admins: list[int],
@@ -220,11 +219,9 @@ async def notify_admins_about_registration(
     comment: str,
     event_title: str,
     event_date: str,
-    event_time: str,
-    state: FSMContext,
-    callback: CallbackQuery
+    event_time: str
 ):
-    data = await state.get_data()
+    #data = await state.get_data()
     """
     Уведомление администраторов о новой записи
     """
@@ -245,9 +242,9 @@ async def notify_admins_about_registration(
         except Exception as e:
             print(f"[ERROR] Не удалось отправить сообщение админу {admin_id}: {e}")
 
-    await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
-    await callback.answer()
-    await state.clear()
+    #await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
+    #await callback.answer()
+    #await state.clear()
 
 
 
