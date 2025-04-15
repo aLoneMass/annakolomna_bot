@@ -51,7 +51,21 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
 async def handle_register(callback: CallbackQuery, state: FSMContext):
     print(f"[DEBUG] Начало регистрации: callback: {CallbackQuery}, state: {FSMContext}")
     event_index = int(callback.data.split("_")[1])
-    await state.update_data(event_index=event_index)
+    events = get_all_events()
+    event = events[event_index]
+
+    # Распакуем нужные поля
+    event_id, title, description, date, time, price, qr_path, payment_link, location, photo_path = event
+
+    # Сохраняем всё в FSMContext
+    await state.update_data(
+        event_index=event_index,
+        event_id=event_id,
+        event_title=title,
+        event_date=date,
+        event_time=time
+    )
+
     await callback.message.answer("👧 Введите имя ребёнка:")
     await state.set_state(RegistrationState.entering_child_name)
     await callback.answer()
@@ -177,7 +191,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
     data = await state.get_data()
 
     await notify_admins_about_registration(
-        bot=callback.message.bot,
+        bot=message.bot,
         admins=ADMINS,
         parent_name=callback.from_user.full_name,
         child_name=data["child_name"],
