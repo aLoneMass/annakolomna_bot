@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from config import ADMINS, DB_PATH
 import sqlite3
+from datetime import datetime
+
 
 router = Router()
 
@@ -18,6 +20,11 @@ async def admin_menu(message: Message):
         [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ])
     await message.answer("Добро пожаловать в админ-меню 👨‍💼", reply_markup=keyboard)
+
+
+
+
+
 
 
 @router.callback_query(lambda c: c.data == "show_registrations")
@@ -53,9 +60,22 @@ async def show_registrations(callback: CallbackQuery):
     text = "📋 <b>Список записей:</b>\n\n"
     for reg in rows:
         username, child, comment, birth_date, date, time, payment_method = reg
+
+        birth_date_str = birth_date or 'не указана'
+        if birth_date:
+            try:
+                birth_dt = datetime.strptime(birth_date, "%Y-%m-%d")
+                today = datetime.today()
+                age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
+                birth_info = f"{birth_date_str} (возраст: {age})"
+            except:
+            birth_info = birth_date_str
+        else:
+            birth_info = "не указана"
+            
         text += (
             f"👤 Пользователь: @{username or 'без username'}\n"
-            f"👧 Ребёнок: {child} (возраст: {birth_date or 'не указан'})\n"
+            f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
             f"📅 Дата: {date} {time}\n"
             f"💬 Комментарий: {comment or '—'}\n"
             f"💰 Оплата: {payment_method}\n\n"
