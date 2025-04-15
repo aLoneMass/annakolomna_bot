@@ -17,6 +17,7 @@ router = Router()
 
 # -- Утилита создания или получения пользователя --
 def get_or_create_user(telegram_id, username=None, full_name=None):
+    print(f"[DEBUG] Утилита создания или получения пользователя:")
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("SELECT id FROM users WHERE telegram_id = ?", (telegram_id,))
@@ -29,6 +30,7 @@ def get_or_create_user(telegram_id, username=None, full_name=None):
 
 # -- Утилита создания или получения ребенка --
 def get_or_create_child(user_id, child_name, comment, birth_date):
+    print(f"[DEBUG] Утилита создания или получения ребенка: user_id: {user_id}, child_name: {child_name}, comment: {comment}, birth_date:{birth_date}")
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -47,6 +49,7 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
 # -- Начало регистрации --
 @router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
 async def handle_register(callback: CallbackQuery, state: FSMContext):
+    print(f"[DEBUG] Начало регистрации: callback: {CallbackQuery}, state: {FSMContext}")
     event_index = int(callback.data.split("_")[1])
     await state.update_data(event_index=event_index)
     await callback.message.answer("👧 Введите имя ребёнка:")
@@ -56,6 +59,7 @@ async def handle_register(callback: CallbackQuery, state: FSMContext):
 # -- Имя ребёнка --
 @router.message(RegistrationState.entering_child_name)
 async def handle_child_name(message: Message, state: FSMContext):
+    print(f"[DEBUG] Имя ребёнка: message: {Message}, state: {FSMContext}")
     await state.update_data(child_name=message.text.strip())
     await message.answer("❗ Есть ли у ребёнка аллергии или пожелания?")
     await state.set_state(RegistrationState.entering_allergy_info)
@@ -63,6 +67,7 @@ async def handle_child_name(message: Message, state: FSMContext):
 # -- Комментарий --
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
+    print(f"[DEBUG] Комментарий message: {Message}, state: {FSMContext}")
     await state.update_data(comment=message.text.strip())
     await message.answer("🎂 Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ:")
     await state.set_state(RegistrationState.entering_birth_date)
@@ -70,6 +75,7 @@ async def handle_allergy_info(message: Message, state: FSMContext):
 # -- Возраст ребёнка --
 @router.message(RegistrationState.entering_birth_date)
 async def handle_child_birth_date(message: Message, state: FSMContext):
+    print(f"[DEBUG] Возраст ребёнка: {Message}, state: {FSMContext}")
     birth_date = message.text.strip()
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
@@ -112,6 +118,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 # -- Оплата наличными --
 @router.callback_query(F.data == "pay_cash")
 async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
+    print(f"[DEBUG] Оплата наличными: callback:{CallbackQuery}, state: {FSMContext}")
     data = await state.get_data()
     user = callback.from_user
 
@@ -144,6 +151,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
 # -- Получение чека --
 @router.message(RegistrationState.waiting_for_payment_check)
 async def handle_payment_check(message: Message, state: FSMContext):
+    print(f"[DEBUG] Получение чека: message:{Message}, state: {FSMContext}")
     tg_user = message.from_user
     file = message.photo[-1] if message.photo else message.document
     ext = "jpg" if message.photo else "pdf"
@@ -186,6 +194,8 @@ async def handle_payment_check(message: Message, state: FSMContext):
     
 
 #Отправка уведомлений администраторам
+@router.message(RegistrationState.notify_admins_about_registration)
+#async def handle_payment_check(message: Message, state: FSMContext):
 async def notify_admins_about_registration(
     bot: Bot,
     admins: list[int],
