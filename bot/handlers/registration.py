@@ -149,6 +149,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
         bot=callback.message.bot,
         admins=ADMINS,
         parent_name=callback.from_user.full_name,
+        username=callback.from_user.username,
         child_name=data["child_name"],
         birth_date=data["birth_date"],
         comment=data["comment"],
@@ -194,6 +195,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
         bot=message.bot,
         admins=ADMINS,
         parent_name=message.from_user.full_name,
+        username=message.from_user.username,
         child_name=data["child_name"],
         birth_date=data["birth_date"],
         comment=data["comment"],
@@ -214,6 +216,7 @@ async def notify_admins_about_registration(
     bot: Bot,
     admins: list[int],
     parent_name: str,
+    username: str | None,
     child_name: str,
     birth_date: str,
     comment: str,
@@ -228,6 +231,7 @@ async def notify_admins_about_registration(
     text = (
         f"📢 {hbold('Новая запись!')}\n\n"
         f"👤 Родитель: {parent_name}\n"
+        f"👤 Логин: {username}\n"
         f"👶 Ребёнок: {child_name}\n"
         f"🎂 День рождения: {birth_date}\n"
         f"📌 Комментарий: {comment or '–'}\n\n"
