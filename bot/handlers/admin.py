@@ -69,10 +69,10 @@ async def show_registrations(callback: CallbackQuery):
                 age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
                 birth_info = f"{birth_date_str} (возраст: {age})"
             except:
-            birth_info = birth_date_str
+                birth_info = birth_date_str
         else:
             birth_info = "не указана"
-            
+
         text += (
             f"👤 Пользователь: @{username or 'без username'}\n"
             f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
