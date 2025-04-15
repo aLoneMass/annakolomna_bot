@@ -1,6 +1,7 @@
 import sqlite3
+from aiogram import Bot
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, Bot
+from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.markdown import hbold
 from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
