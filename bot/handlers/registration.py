@@ -121,7 +121,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
 
     #вызовем функцию уведомления администратора и передадим данные
     await notify_admins_about_registration(
-        bot=bot,
+        bot=message.bot,
         admins=ADMINS,
         parent_name=full_name,
         child_name=child_name,
