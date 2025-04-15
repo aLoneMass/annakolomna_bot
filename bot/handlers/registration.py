@@ -113,7 +113,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 
     await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
     await state.update_data(user_id=user_id, registration_id=registration_id)
-    await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
+    await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
 
 # -- Оплата наличными --
 @router.callback_query(F.data == "pay_cash")
@@ -143,10 +143,10 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
         event_time=data["event_time"],
     )
 
-    await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
-    await callback.answer()
+    #await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
+    #await callback.answer()
     await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
-    await state.clear()
+    #await state.clear()
 
 # -- Получение чека --
 @router.message(RegistrationState.waiting_for_payment_check)
@@ -190,7 +190,8 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
 
     await message.answer("✅ Спасибо! Чек получен. До встречи на мастер-классе!")
-    await state.clear()
+    await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
+    #await state.clear()
     
 
 #Отправка уведомлений администраторам
@@ -206,7 +207,10 @@ async def notify_admins_about_registration(
     event_title: str,
     event_date: str,
     event_time: str,
+    state: FSMContext,
+    callback: CallbackQuery
 ):
+    data = await state.get_data()
     """
     Уведомление администраторов о новой записи
     """
@@ -226,6 +230,10 @@ async def notify_admins_about_registration(
             await bot.send_message(admin_id, text)
         except Exception as e:
             print(f"[ERROR] Не удалось отправить сообщение админу {admin_id}: {e}")
+
+    await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
+    await callback.answer()
+    await state.clear()
 
 
 
