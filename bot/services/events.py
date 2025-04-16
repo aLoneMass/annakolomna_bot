@@ -19,6 +19,8 @@ def get_all_events():
             FROM events
             ORDER BY date, time
         """)
-        print(f"[DEBUG get_al_events]:{cur.fetchall()}")
+        print(f"[DEBUG get_all_events]:{cur.fetchall()}")
         return cur.fetchall()
 
+# .mode column
+# .headers on
