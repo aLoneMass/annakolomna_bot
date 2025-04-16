@@ -190,12 +190,16 @@ async def handle_allergy_info(message: Message, state: FSMContext):
 async def handle_child_birth_date(message: Message, state: FSMContext):
     print(f"[DEBUG] Возраст ребёнка")
     data = await state.get_data()
-    event_id = data.get("event_id")  # Получаем event_id из состояния
+    event_id = data.get("event_id")      # Получаем event_id из состояния
     if event_id is None:
         await message.answer("Произошла ошибка: идентификатор мероприятия не найден.")
         print(f"[DEBUG] Произошла ошибка: идентификатор мероприятия не найден")
         return
     
+    event = get_all_events()[event_index]
+    event_id = event[0]
+
+    await state.update_data(event_id=event_id)
     birth_date = message.text.strip()
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
@@ -317,7 +321,6 @@ async def handle_payment_check(message: Message, state: FSMContext):
     
 
 #Отправка уведомлений администраторам
-#@router.message(RegistrationState.notify_admins_about_registration)
 async def notify_admins_about_registration(
     bot: Bot,
     admins: list[int],
