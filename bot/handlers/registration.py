@@ -188,7 +188,8 @@ async def handle_allergy_info(message: Message, state: FSMContext):
 # -- Возраст ребёнка --
 @router.message(RegistrationState.entering_birth_date)
 async def handle_child_birth_date(message: Message, state: FSMContext):
-    print(f"[DEBUG] Возраст ребёнка: {Message}, state: {FSMContext}")
+    print(f"[DEBUG] Возраст ребёнка")
+    await state.update_data(event_id=event_id)
     birth_date = message.text.strip()
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
