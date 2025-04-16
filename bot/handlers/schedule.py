@@ -35,7 +35,7 @@ async def handle_schedule_callback(callback: CallbackQuery): # Определя�
 async def send_schedule(message: Message): #Определяется асинхронная функция, которая принимает объект message.
     print (f'[DEBUG send_schedule] ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
     events = get_all_events()       #Получаем список всех мероприятий из функции get_all_events()
-    print (f'[DEBUG send_schedule] кажется это дубляж: {get_all_events()} ')   
+    print (f'[DEBUG send_schedule] события полученные от функции get_all_events: {events}')   
     if not events:
         await message.answer("Пока нет запланированных мероприятий.")
         return
