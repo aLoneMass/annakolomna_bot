@@ -12,7 +12,7 @@ import datetime
 from config import CHECKS_DIR, ADMINS, DB_PATH
 from bot.utils.notifications import notify_admins_about_registration
 from config import ADMINS  # список ID из .env
-from bot.db import DB_PATH
+
 
 router = Router()
 
