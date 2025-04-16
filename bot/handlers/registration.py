@@ -32,15 +32,17 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
         cur.execute("""
             SELECT p.payment_type
             FROM registrations r
+            JOIN users u ON r.user_id = u.id
             LEFT JOIN payments p ON r.id = p.registration_id
-            WHERE r.user_id = ? AND r.event_id = ?
+            WHERE u.telegram_id = ? AND r.event_id = ?;
+
         """, (user_id, event_id))
         reg = cur.fetchone()
         print(f'[DEBUG] reg: {reg}')
 
         if reg:
             payment_type = reg[0]
-            if payment_type == "CASH":
+            if payment_type == "наличными":
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
                     [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
