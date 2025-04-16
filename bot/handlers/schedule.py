@@ -47,7 +47,7 @@ async def send_schedule(message: Message):
     )
 
 
-    keyboard = get_event_navigation_keyboard_with_signup(index, len(events))
+    keyboard = get_event_navigation_keyboard_with_signup(index, len(events), event_id)
 
     await message.answer(
         text=caption,
