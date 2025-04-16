@@ -36,6 +36,7 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
             WHERE r.user_id = ? AND r.event_id = ?
         """, (user_id, event_id))
         reg = cur.fetchone()
+        print(f'[DEBUG] reg: {reg}')
 
         if reg:
             payment_type = reg[0]
