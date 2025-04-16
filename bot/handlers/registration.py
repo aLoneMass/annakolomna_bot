@@ -1,4 +1,3 @@
-import sqlite3
 from aiogram import Bot
 from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
@@ -8,12 +7,111 @@ from bot.states.registration import RegistrationState
 from bot.services.events import get_all_events
 import os
 import re
+import sqlite3
 import datetime
 from config import CHECKS_DIR, ADMINS, DB_PATH
 from bot.utils.notifications import notify_admins_about_registration
 from config import ADMINS  # список ID из .env
+from bot.db import DB_PATH
 
 router = Router()
+
+
+
+@router.callback_query(F.data.startswith("signup_event:"))
+async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
+    event_id = int(callback.data.split(":")[1])
+    user_id = callback.from_user.id
+
+    # Сохраняем event_id в state
+    await state.update_data(event_id=event_id)
+
+    # Проверка: зарегистрирован ли пользователь на это мероприятие
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT p.payment_type
+            FROM registrations r
+            LEFT JOIN payments p ON r.id = p.registration_id
+            WHERE r.user_id = ? AND r.event_id = ?
+        """, (user_id, event_id))
+        reg = cur.fetchone()
+
+        if reg:
+            payment_type = reg[0]
+            if payment_type == "CASH":
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
+                    [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
+                ])
+                await callback.message.answer(
+                    "Вы уже записаны на это мероприятие и выбрали оплату наличными.\n"
+                    "Хотите оплатить онлайн?",
+                    reply_markup=keyboard
+                )
+            else:
+                await callback.message.answer("✅ Вы уже записаны на это мероприятие.")
+            await callback.answer()
+            return
+
+    # Проверка: есть ли сохранённый ребёнок
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT child_name, comment, birth_date
+        FROM children
+        WHERE user_id = ?
+        LIMIT 1
+    """, (user_id,))
+    child = cur.fetchone()
+
+    if child:
+        child_name, comment, birth_date = child
+        # Сохраняем в state для подтверждения
+        await state.update_data(
+            child_name=child_name,
+            comment=comment,
+            birth_date=birth_date
+        )
+
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="✅ Да", callback_data="confirm_child_info")],
+            [InlineKeyboardButton(text="✏️ Ввести заново", callback_data="new_child_info")]
+        ])
+
+        await callback.message.answer(
+            f"👶 Найдены данные ребёнка:\n"
+            f"Имя: {hbold(child_name)}\n"
+            f"Комментарий: {comment or '–'}\n"
+            f"День рождения: {birth_date}\n\n"
+            f"Использовать эти данные?",
+            reply_markup=keyboard
+        )
+        await callback.answer()
+        return
+
+    # Если данных о ребёнке нет — переходим к ручному вводу
+    await callback.message.answer("Введите имя ребёнка:")
+    await state.set_state(RegistrationState.entering_child_name)
+    await callback.answer()
+
+
+#Если пользователь подтвердил использование имеющихся данных
+@router.callback_query(F.data == "confirm_child_info")
+async def handle_confirm_child_info(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+
+    await callback.message.answer("Отлично! Используем сохранённые данные.")
+
+    # Переходим сразу к этапу подтверждения оплаты
+    # Здесь можно показать сообщение с QR-кодом, кнопкой "Оплата наличными" и т.д.
+
+    # Подразумеваем, что после подтверждения пользователь попадает на оплату:
+    await state.set_state(RegistrationState.checking_payment)
+
+    await callback.answer()
+
+
+
 
 # -- Утилита создания или получения пользователя --
 def get_or_create_user(telegram_id, username=None, full_name=None):
@@ -49,7 +147,7 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
 # -- Начало регистрации --
 @router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
 async def handle_register(callback: CallbackQuery, state: FSMContext):
-    print(f"[DEBUG] Начало регистрации: callback: {CallbackQuery}, state: {FSMContext}")
+    print(f"[DEBUG] Начало регистрации")
     event_index = int(callback.data.split("_")[1])
     events = get_all_events()
     event = events[event_index]

@@ -15,7 +15,7 @@ def get_event_navigation_keyboard_with_signup(index: int, total: int) -> InlineK
         buttons.append(nav_row)
 
     buttons.append([
-        InlineKeyboardButton(text="✅ Записаться", callback_data=f"signup_{index}")
+        InlineKeyboardButton(text="✅ Записаться", callback_data=f"signup_event:{event_id}")
     ])
     buttons.append([
         InlineKeyboardButton(text="❌ Закрыть", callback_data="close")
