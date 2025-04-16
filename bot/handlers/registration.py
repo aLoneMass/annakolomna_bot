@@ -15,14 +15,13 @@ from config import ADMINS  # список ID из .env
 
 router = Router()
 
-
 #Функция вызывается при нажатии на кнопку "Записаться"
 @router.callback_query(F.data.startswith("signup_event:"))
 async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
-    print (f'[DEBUG] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {callback.data}')
+    print (f'[DEBUG signup] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {callback.data}')
     event_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
-    print (f'[DEBUG]   callback.from_user.id: {callback.from_user}')
+    print (f'[DEBUG signup]   callback.from_user.id: {callback.from_user}')
     # Сохраняем event_id в state
     await state.update_data(event_id=event_id)
 
@@ -38,11 +37,12 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
 
         """, (user_id, event_id))
         reg = cur.fetchone()
-        print(f'[DEBUG] reg: {reg}')
+        print(f'[DEBUG signup] Тип платежа: reg: {reg}')
 
         if reg:
             payment_type = reg[0]
             if payment_type == "наличными":
+                print(f'[DEBUG signup] провалилсь в if "наличными"')
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
                     [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
@@ -53,6 +53,7 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
                     reply_markup=keyboard
                 )
             else:
+                print(f'[DEBUG signup] провалилсь в else "оплачено"')
                 await callback.message.answer("✅ Вы уже записаны на это мероприятие.")
             await callback.answer()
             return
@@ -66,6 +67,7 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
         LIMIT 1
     """, (user_id,))
     child = cur.fetchone()
+    print(f'[DEBUG signup] проверка наличия ребенка: {child}')
 
     if child:
         child_name, comment, birth_date = child
@@ -91,10 +93,15 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
         )
         await callback.answer()
         return
+    
+    
 
     # Если данных о ребёнке нет — переходим к ручному вводу
+    
     await callback.message.answer("Введите имя ребёнка:")
+    
     await state.set_state(RegistrationState.entering_child_name)
+
     await callback.answer()
 
 
@@ -148,65 +155,67 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
         """, (user_id, child_name, comment, birth_date ))
         return cur.lastrowid
 
-# -- Начало регистрации --
-@router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
-async def handle_register(callback: CallbackQuery, state: FSMContext):
-    print(f"[DEBUG] Начало регистрации")
-    event_index = int(callback.data.split("_")[1])
-    events = get_all_events()
-    event = events[event_index]
+# # -- Начало регистрации --
+# @router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
+# async def handle_register(callback: CallbackQuery, state: FSMContext):
+#     print(f"[DEBUG] Начало регистрации")
+#     event_index = int(callback.data.split("_")[1])
+#     events = get_all_events()
+#     event = events[event_index]
 
-    # Распакуем нужные поля
-    event_id, title, description, date, time, price, qr_path, payment_link, location, photo_path = event
+#     # Распакуем нужные поля
+#     event_id, title, description, date, time, price, qr_path, payment_link, location, photo_path = event
 
-    # Сохраняем всё в FSMContext
-    await state.update_data(
-        event_index=event_index,
-        event_id=event_id,
-        event_title=title,
-        event_date=date,
-        event_time=time
-    )
+#     # Сохраняем всё в FSMContext
+#     await state.update_data(
+#         event_index=event_index,
+#         event_id=event_id,
+#         event_title=title,
+#         event_date=date,
+#         event_time=time
+#     )
 
-    await callback.message.answer("👧 Введите имя ребёнка:")
-    await state.set_state(RegistrationState.entering_child_name)
-    await callback.answer()
+#     await callback.message.answer("👧 Введите имя ребёнка:")
+#     await state.set_state(RegistrationState.entering_child_name)
+#     await callback.answer()
 
-# -- Имя ребёнка --
+#1 -- Имя ребёнка --
 @router.message(RegistrationState.entering_child_name)
 async def handle_child_name(message: Message, state: FSMContext):
-    print(f"[DEBUG] Имя ребёнка: message: {Message}, state: {FSMContext}")
+    print(f"[DEBUG child_name] message: {Message}, state: {FSMContext}")
     await state.update_data(child_name=message.text.strip())
     await message.answer("❗ Есть ли у ребёнка аллергии или пожелания?")
     await state.set_state(RegistrationState.entering_allergy_info)
 
-# -- Комментарий --
+#2 -- Комментарий --
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
-    print(f"[DEBUG] Комментарий message: {Message}, state: {FSMContext}")
+    print(f"[DEBUG cooment_step] message: {Message.chil}, state: {FSMContext}")
     await state.update_data(comment=message.text.strip())
     await message.answer("🎂 Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ:")
     await state.set_state(RegistrationState.entering_birth_date)
 
-# -- Возраст ребёнка --
+#3 -- Возраст ребёнка --
 @router.message(RegistrationState.entering_birth_date)
 async def handle_child_birth_date(message: Message, state: FSMContext):
-    print(f"[DEBUG] Возраст ребёнка")
     data = await state.get_data()
+    print(f"[DEBUG birth_date] данные в памяти: {data}")
     event_id = data.get("event_id")      # Получаем event_id из состояния
     if event_id is None:
         await message.answer("Произошла ошибка: идентификатор мероприятия не найден.")
-        print(f"[DEBUG] Произошла ошибка: идентификатор мероприятия не найден")
         return
     
+    print(f"[DEBUG birth_date] event_id: {event_id}")
     event = get_all_events()[event_id]
+    print(f"[DEBUG birth_date] event: {event}")
     event_id = event[0]
-
-    await state.update_data(event_id=event_id)
+    print(f"[DEBUG birth_date] event_id[0]: {event_id}")
+    #await state.update_data(event_id=event_id)
     birth_date = message.text.strip()
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
-    if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", birth_date):
+    #if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", birth_date):  
+    if not re.match(r"^\d{2}\.\d{2}\.\d{2}(\d{2})?$", birth_date):
         await message.answer("❗ Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ.")
         return
 
@@ -214,6 +223,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     await state.update_data(birth_date=birth_date)
     data = await state.get_data()
     user = message.from_user
+    #Остановился тут
     user_id = get_or_create_user(user.id, user.username, user.full_name)
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
 
