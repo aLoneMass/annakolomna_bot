@@ -190,7 +190,7 @@ async def handle_child_name(message: Message, state: FSMContext):
 #2 -- Комментарий --
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
-    print(f"[DEBUG cooment_step] message: {Message.chil}, state: {FSMContext}")
+    print(f"[DEBUG coment_step] message: {Message.child_name}, state: {FSMContext}")
     await state.update_data(comment=message.text.strip())
     await message.answer("🎂 Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ:")
     await state.set_state(RegistrationState.entering_birth_date)
