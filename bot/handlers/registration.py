@@ -109,6 +109,7 @@ async def handle_confirm_child_info(callback: CallbackQuery, state: FSMContext):
     await state.set_state(RegistrationState.checking_payment)
 
     await callback.answer()
+    await handle_child_birth_date(message=callback.message, state=state)
 
 
 
