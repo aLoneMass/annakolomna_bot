@@ -16,10 +16,10 @@ from config import ADMINS  # список ID из .env
 router = Router()
 
 
-
+#Функция вызывается при нажатии на кнопку "Записаться"
 @router.callback_query(F.data.startswith("signup_event:"))
 async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
-    
+    print (f'[DEBUG] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {(callback.data}')
     event_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
 
