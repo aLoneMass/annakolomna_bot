@@ -10,7 +10,6 @@ import re
 import sqlite3
 import datetime
 from config import CHECKS_DIR, ADMINS, DB_PATH
-from bot.utils.notifications import notify_admins_about_registration
 from config import ADMINS  # список ID из .env
 
 
@@ -20,6 +19,7 @@ router = Router()
 
 @router.callback_query(F.data.startswith("signup_event:"))
 async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
+    
     event_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
 
