@@ -35,7 +35,7 @@ async def handle_schedule_callback(callback: CallbackQuery): # Определя�
 async def send_schedule(message: Message): #Определяется асинхронная функция, которая принимает объект message.
     print (f'[DEBUG send_schedule] ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
     events = get_all_events()       #Получаем список всех мероприятий из функции get_all_events()
-    print (f'[DEBUG send_schedule] get_all_events: {get_all_events} ')   
+    print (f'[DEBUG send_schedule] кажется это дубляж: {get_all_events} ')   
     if not events:
         await message.answer("Пока нет запланированных мероприятий.")
         return
@@ -49,7 +49,7 @@ async def send_schedule(message: Message): #Определяется асинх�
     event = events[index] #Извлекается первое мероприятие из списка.
     print(f'[DEBUG send_schedule] список событий: {event}')
 
-    
+
     event_id, title, description, date, time, price, qr_path, payment_link,  location, photo_path = event   #Распаковка полей мероприятия в отдельные переменные
     # Ожидается, что event — это кортеж или список с такими значениями:
     # event_id — уникальный идентификатор события
