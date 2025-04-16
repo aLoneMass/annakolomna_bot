@@ -196,7 +196,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
         print(f"[DEBUG] Произошла ошибка: идентификатор мероприятия не найден")
         return
     
-    event = get_all_events()[event_index]
+    event = get_all_events()[event_id]
     event_id = event[0]
 
     await state.update_data(event_id=event_id)
