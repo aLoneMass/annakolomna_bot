@@ -22,7 +22,7 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
     print (f'[DEBUG] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {callback.data}')
     event_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
-
+    print (f'[DEBUG]   callback.from_user.id: {callback.from_user}')
     # Сохраняем event_id в state
     await state.update_data(event_id=event_id)
 
