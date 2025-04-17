@@ -42,13 +42,13 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
         if reg:
             payment_type = reg[0]
             if payment_type == "наличными":
-                print(f'[DEBUG signup] провалилсь в if "наличными"')
+                print(f'[DEBUG signup] провалилсь в if "наличными" payment_type: {payment_type}')
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
                     # [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
-                    [InlineKeyboardButton(text="🔙 Назад", callback_data="handle_schedule_callback")]
+                    [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
                 ])
-                await callback.message.answer(
+                await callback.message.answer(                
                     "Вы уже записаны на это мероприятие и выбрали оплату наличными.\n"
                     "Хотите оплатить онлайн?",
                     reply_markup=keyboard
