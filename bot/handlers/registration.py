@@ -262,7 +262,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 # -- Оплата наличными --
 @router.callback_query(F.data == "pay_cash")
 async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
-    print(f"[DEBUG] Оплата наличными: callback:{CallbackQuery}, state: {FSMContext}")
+    print(f"[DEBUG pay_cash] Оплата наличными")
     data = await state.get_data()
     user = callback.from_user
 
@@ -274,6 +274,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
 
     #вызовем функцию уведомления администратора и передадим данные
     data = await state.get_data()
+    print(f'[DEBUG cash_payment] admin notification. data:{data}')
 
     await notify_admins_about_registration(
         bot=callback.message.bot,
@@ -283,7 +284,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
         child_name=data["child_name"],
         birth_date=data["birth_date"],
         comment=data["comment"],
-        event_title=data["event_title"],
+        event_title=data["title"],
         event_date=data["event_date"],
         event_time=data["event_time"],
     )
