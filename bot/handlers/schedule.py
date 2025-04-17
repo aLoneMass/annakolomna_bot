@@ -32,7 +32,7 @@ async def handle_schedule_callback(callback: CallbackQuery): # Определя�
                             #callback.answer() не обязательно должен что-то отображать пользователю, он просто говорит Telegram: ✅ "Я обработал это нажатие".
 
 
-# 🧠 Универсальная функция показа мероприятия
+# 🧠 Универсальная функция показа мероприятия вызывается первый раз, потом после нажатия кнопок вызывается новая процедура handle_navigation
 async def send_schedule(message: Message): #Определяется асинхронная функция, которая принимает объект message.
     today = date.today().isoformat()  # Результат: '2025-04-17'
     print (f'[DEBUG send_schedule] today:{today} ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
@@ -79,14 +79,7 @@ async def send_schedule(message: Message): #Определяется асинх�
     )
 
 
-
-
 #Переписываем процедуру показать расписание
-#callback_data="show_schedule"
-
-#@router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))
-
-
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
@@ -119,4 +112,10 @@ async def handle_navigation(callback: CallbackQuery):
             parse_mode="HTML"
         )
 
+    await callback.answer()
+
+
+@router.callback_query(lambda c: c.data == "close")
+async def handle_close(callback: CallbackQuery):
+    await callback.message.delete()
     await callback.answer()
