@@ -139,13 +139,13 @@ def get_or_create_user(telegram_id, username=None, full_name=None):
 
 # -- Утилита создания или получения ребенка --
 def get_or_create_child(user_id, child_name, comment, birth_date):
-    print(f"[DEBUG] Утилита создания или получения ребенка: user_id: {user_id}, child_name: {child_name}, comment: {comment}, birth_date:{birth_date}")
+    print(f"[DEBUG get_or_create_child] user_id: {user_id}, child_name: {child_name}, comment: {comment}, birth_date:{birth_date}")
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT id FROM children
-            WHERE user_id = ? AND child_name = ? AND comment = ? AND birth_date = ?
-        """, (user_id, child_name, comment, birth_date))
+            WHERE user_id = ? AND child_name = ?
+        """, (user_id, child_name))
         row = cur.fetchone()
         if row:
             return row[0]
@@ -232,8 +232,9 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
     print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
-    event = get_all_events()[data['event_index']]
+    event = get_all_events(data['event_index'])
     event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
+    print(f"[DEBUG birth_date] данные в event: {event}")
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
