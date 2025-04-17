@@ -45,7 +45,8 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
                 print(f'[DEBUG signup] провалилсь в if "наличными"')
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
-                    [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
+                    # [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
+                    [InlineKeyboardButton(text="🔙 Назад", callback_data="handle_schedule_callback")]
                 ])
                 await callback.message.answer(
                     "Вы уже записаны на это мероприятие и выбрали оплату наличными.\n"
@@ -206,11 +207,6 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     #     return
     
     print(f"[DEBUG birth_date] event_id: {event_id}")
-    #event = get_all_events()[event_id]
-    #print(f"[DEBUG birth_date] event: {event}")
-    #event_id = event[0]
-    #print(f"[DEBUG birth_date] event_id[0]: {event_id}")
-    #await state.update_data(event_id=event_id)
 
     birth_date = message.text.strip()   #В переменную birh_date запомним введеное с клавиатуры значение дня рождения
 
@@ -376,9 +372,12 @@ async def notify_admins_about_registration(
         except Exception as e:
             print(f"[ERROR] Не удалось отправить сообщение админу {admin_id}: {e}")
 
-    #await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
-    #await callback.answer()
-    #await state.clear()
+
+
+
+
+
+
 
 
 
