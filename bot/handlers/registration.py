@@ -17,9 +17,9 @@ router = Router()
 
 #Функция вызывается при нажатии на кнопку "Записаться"
 @router.callback_query(F.data.startswith("signup_event:"))
-async def handle_signup_event(callback: CallbackQuery, state: FSMContext):
+async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В переменной callback будет содержаться значение event_id отправленное с нажатием кнопки "записаться"
     print (f'[DEBUG signup] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {callback.data}')
-    event_id = int(callback.data.split(":")[1])
+    event_id = int(callback.data.split(":")[1])                             #Вот тут вытаскивается это значение из коллбек.дата в эвент_ид
     user_id = callback.from_user.id
     print (f'[DEBUG signup]   callback.from_user.id: {callback.from_user}')
     # Сохраняем event_id в state
@@ -201,17 +201,18 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     data = await state.get_data()
     print(f"[DEBUG birth_date] данные в памяти: {data}")
     event_id = data.get("event_id")      # Получаем event_id из состояния
-    if event_id is None:
-        await message.answer("Произошла ошибка: идентификатор мероприятия не найден.")
-        return
+    # if event_id is None:
+    #     await message.answer("Произошла ошибка: идентификатор мероприятия не найден.")
+    #     return
     
     print(f"[DEBUG birth_date] event_id: {event_id}")
-    event = get_all_events()[event_id]
-    print(f"[DEBUG birth_date] event: {event}")
-    event_id = event[0]
-    print(f"[DEBUG birth_date] event_id[0]: {event_id}")
+    #event = get_all_events()[event_id]
+    #print(f"[DEBUG birth_date] event: {event}")
+    #event_id = event[0]
+    #print(f"[DEBUG birth_date] event_id[0]: {event_id}")
     #await state.update_data(event_id=event_id)
-    birth_date = message.text.strip()
+
+    birth_date = message.text.strip()   #В переменную birh_date запомним введеное с клавиатуры значение дня рождения
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
     #if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", birth_date):  
@@ -222,6 +223,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 
     await state.update_data(birth_date=birth_date)
     data = await state.get_data()
+    print(f"[DEBUG birth_date] данные в памяти обновлены: {data}")
     user = message.from_user
     #Остановился тут
     user_id = get_or_create_user(user.id, user.username, user.full_name)
