@@ -126,7 +126,7 @@ async def handle_confirm_child_info(callback: CallbackQuery, state: FSMContext):
 
 # -- Утилита создания или получения пользователя --
 def get_or_create_user(telegram_id, username=None, full_name=None):
-    print(f"[DEBUG] Утилита создания или получения пользователя:")
+    print(f"[DEBUG get_or_create_user] Утилита создания или получения пользователя:")
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("SELECT id FROM users WHERE telegram_id = ?", (telegram_id,))
@@ -225,9 +225,12 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     data = await state.get_data()
     print(f"[DEBUG birth_date] данные в памяти обновлены: {data}")
     user = message.from_user
-    #Остановился тут
+    
     user_id = get_or_create_user(user.id, user.username, user.full_name)
+    print(f"[DEBUG birth_date] данные в user_id: {user_id}")
+    #Остановился тут
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
+    print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
     event = get_all_events()[data['event_index']]
     event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
