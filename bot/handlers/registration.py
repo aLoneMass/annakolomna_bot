@@ -232,7 +232,8 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
     #Остановился тут
-    event = get_all_events(data['event_id'])
+    #event = get_all_events(data['event_id'])
+    event = get_all_events(data['event_id'])[0]
     event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
     print(f"[DEBUG birth_date] данные в event: {event}")
 
