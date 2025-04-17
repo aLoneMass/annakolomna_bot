@@ -228,11 +228,11 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     
     user_id = get_or_create_user(user.id, user.username, user.full_name)
     print(f"[DEBUG birth_date] данные в user_id: {user_id}")
-    #Остановился тут
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
     print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
-    event = get_all_events(data['event_index'])
+    #Остановился тут
+    event = get_all_events(data['event_id'])
     event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
     print(f"[DEBUG birth_date] данные в event: {event}")
 
