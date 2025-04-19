@@ -29,8 +29,10 @@ async def admin_menu(message: Message):
 
 
 
+
 @router.callback_query(lambda c: c.data == "show_registrations")
 async def show_registrations(callback: CallbackQuery):
+    await callback.answer()
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
