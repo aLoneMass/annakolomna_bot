@@ -10,7 +10,7 @@ from collections import defaultdict
 
 router = Router()
 
-@router.message(Command("admin"))
+@router.message(Command("admin"))   #проверим является ли пользователь - админом и выведем ему админ меню.
 async def admin_menu(message: Message):
     if message.from_user.id not in ADMINS:
         await message.answer("⛔ Доступ запрещён.")
@@ -25,16 +25,9 @@ async def admin_menu(message: Message):
     await message.answer("Добро пожаловать в админ-меню 👨‍💼", reply_markup=keyboard)
 
 
-
-
-
-
-
-
-
 @router.callback_query(lambda c: c.data == "show_registrations")
 async def show_registrations(callback: CallbackQuery):
-    await callback.answer()
+    #await callback.answer()
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -60,6 +53,8 @@ async def show_registrations(callback: CallbackQuery):
             ORDER BY e.date DESC, e.time DESC
         """)
         rows = cur.fetchall()
+    
+    await callback.answer()
 
     if not rows:
         await callback.message.answer("Пока нет записей.")
@@ -101,33 +96,6 @@ async def show_registrations(callback: CallbackQuery):
             )
 
     await callback.message.answer(text, parse_mode="HTML")
-
-
-
-    # for reg in rows:
-    #     event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
-
-    #     birth_date_str = birth_date or 'не указана'
-    #     if birth_date:
-    #         try:
-    #             birth_dt = datetime.strptime(birth_date, "%Y-%m-%d")
-    #             today = datetime.today()
-    #             age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
-    #             birth_info = f"{birth_date_str} (возраст: {age})"
-    #         except:
-    #             birth_info = birth_date_str
-    #     else:
-    #         birth_info = "не указана"
-        
-    #     text += (
-    #         f"🍯 Мастер-класс: {event_title}\n"
-    #         f"📅 Дата: {date} в {time}\n"
-    #         f"👤 Пользователь: @{username or 'без username'}\n"
-    #         f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
-    #         f"💬 Заметка: {comment or '—'}\n"
-    #         f"💰 Оплата: {payment_method}\n\n"
-    #     )
-    # await callback.message.answer(text, parse_mode="HTML")
 
 
 @router.callback_query(lambda c: c.data == "show_events")
