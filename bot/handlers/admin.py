@@ -4,6 +4,8 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from config import ADMINS, DB_PATH
 import sqlite3
 from datetime import datetime
+from collections import defaultdict
+
 
 
 router = Router()
@@ -63,32 +65,69 @@ async def show_registrations(callback: CallbackQuery):
         await callback.message.answer("Пока нет записей.")
         return
 
+
+    grouped = defaultdict(list)
+    event_info = {}
+
+    for row in rows:
+        event_id, event_title, username, child, comment, birth_date, date, time, payment_method = row
+        grouped[event_id].append((username, child, comment, birth_date, payment_method))
+        event_info[event_id] = (event_title, date, time)
+
     text = "📋 <b>Список записей:</b>\n\n"
     
-    for reg in rows:
-        event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
+    for event_id, registrations in grouped.items():
+        title, date, time = event_info[event_id]
+        text += f"🎨 <b>{title}</b>\n📅 <i>{date} в {time}</i>\n\n"
 
-        birth_date_str = birth_date or 'не указана'
-        if birth_date:
-            try:
-                birth_dt = datetime.strptime(birth_date, "%Y-%m-%d")
-                today = datetime.today()
-                age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
-                birth_info = f"{birth_date_str} (возраст: {age})"
-            except:
-                birth_info = birth_date_str
-        else:
-            birth_info = "не указана"
-        
-        text += (
-            f"🍯 Мастер-класс: {event_title}\n"
-            f"📅 Дата: {date} в {time}\n"
-            f"👤 Пользователь: @{username or 'без username'}\n"
-            f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
-            f"💬 Заметка: {comment or '—'}\n"
-            f"💰 Оплата: {payment_method}\n\n"
-        )
+        for username, child, comment, birth_date, payment_method in registrations:
+            birth_date_str = birth_date or 'не указана'
+            if birth_date:
+                try:
+                    birth_dt = datetime.strptime(birth_date, "%Y-%m-%d")
+                    today = datetime.today()
+                    age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
+                    birth_info = f"{birth_date_str} (возраст: {age})"
+                except:
+                    birth_info = birth_date_str
+            else:
+                birth_info = "не указана"
+
+            text += (
+                f"👤 Пользователь: @{username or 'без username'}\n"
+                f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
+                f"💬 Заметка: {comment or '—'}\n"
+                f"💰 Оплата: {payment_method}\n\n"
+            )
+
     await callback.message.answer(text, parse_mode="HTML")
+
+
+
+    # for reg in rows:
+    #     event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
+
+    #     birth_date_str = birth_date or 'не указана'
+    #     if birth_date:
+    #         try:
+    #             birth_dt = datetime.strptime(birth_date, "%Y-%m-%d")
+    #             today = datetime.today()
+    #             age = today.year - birth_dt.year - ((today.month, today.day) < (birth_dt.month, birth_dt.day))
+    #             birth_info = f"{birth_date_str} (возраст: {age})"
+    #         except:
+    #             birth_info = birth_date_str
+    #     else:
+    #         birth_info = "не указана"
+        
+    #     text += (
+    #         f"🍯 Мастер-класс: {event_title}\n"
+    #         f"📅 Дата: {date} в {time}\n"
+    #         f"👤 Пользователь: @{username or 'без username'}\n"
+    #         f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
+    #         f"💬 Заметка: {comment or '—'}\n"
+    #         f"💰 Оплата: {payment_method}\n\n"
+    #     )
+    # await callback.message.answer(text, parse_mode="HTML")
 
 
 @router.callback_query(lambda c: c.data == "show_events")
