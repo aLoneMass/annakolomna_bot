@@ -19,7 +19,7 @@ async def admin_menu(message: Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📋 Участники", callback_data="show_registrations")],
         [InlineKeyboardButton(text="📅 Мероприятия", callback_data="show_events")],
-        [InlineKeyboardButton(text="📅 Добавить Мастер-класс", callback_data="show_events")],
+        [InlineKeyboardButton(text="📅 Добавить Мастер-класс", callback_data="create_events")],
         [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
     ])
     await message.answer("Добро пожаловать в админ-меню 👨‍💼", reply_markup=keyboard)
@@ -101,8 +101,22 @@ async def show_registrations(callback: CallbackQuery):
 @router.callback_query(lambda c: c.data == "show_events")
 async def show_events(callback: CallbackQuery):
     await callback.message.answer("Функционал просмотра мероприятий ещё в разработке.")
+    await callback.answer()                 #Эта строка прекращает моргание кнопки, будто она не работает. говорит телеграму, что мы обработали действие по кнопке.
+
+
+
+
+create_events
+@router.callback_query(lambda c: c.data == "create_events")
+async def show_events(callback: CallbackQuery):
+    await callback.message.answer("Функционал просмотра мероприятий ещё в разработке.")
+    await callback.answer()                 #Эта строка прекращает моргание кнопки, будто она не работает. говорит телеграму, что мы обработали действие по кнопке.
+
+
+
 
 
 @router.callback_query(lambda c: c.data == "back_to_main")
 async def back_to_main(callback: CallbackQuery):
     await callback.message.answer("Возвращаемся в главное меню.")
+    await callback.answer()
