@@ -65,9 +65,9 @@ async def show_registrations(callback: CallbackQuery):
 
     text = "📋 <b>Список записей:</b>\n\n"
     
-    event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
-    
     for reg in rows:
+        event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
+
         birth_date_str = birth_date or 'не указана'
         if birth_date:
             try:
