@@ -64,9 +64,10 @@ async def show_registrations(callback: CallbackQuery):
         return
 
     text = "📋 <b>Список записей:</b>\n\n"
+    
+    event_id, event_title, username, child, comment, birth_date, date, time, payment_method = reg
+    
     for reg in rows:
-        username, child, comment, birth_date, date, time, payment_method = reg
-
         birth_date_str = birth_date or 'не указана'
         if birth_date:
             try:
@@ -78,12 +79,13 @@ async def show_registrations(callback: CallbackQuery):
                 birth_info = birth_date_str
         else:
             birth_info = "не указана"
-
+        
         text += (
+            f"🍯 Мастер-класс: {event_title}"
+            f"📅 Дата: {date} в {time}\n"
             f"👤 Пользователь: @{username or 'без username'}\n"
             f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
-            f"📅 Дата: {date} {time}\n"
-            f"💬 Комментарий: {comment or '—'}\n"
+            f"💬 Заметка: {comment or '—'}\n"
             f"💰 Оплата: {payment_method}\n\n"
         )
     await callback.message.answer(text, parse_mode="HTML")
