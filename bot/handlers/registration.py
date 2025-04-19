@@ -41,8 +41,9 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
 
         if reg:
             payment_type = reg[0]
+            print(f'[DEBUG signup] payment_type: {payment_type}')
             if payment_type == "наличными":
-                print(f'[DEBUG signup] провалилсь в if "наличными" payment_type: {payment_type}')
+                print(f'[DEBUG signup] провалилсь в if "наличными" ')
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
                     # [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
@@ -53,9 +54,21 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
                     "Хотите оплатить онлайн?",
                     reply_markup=keyboard
                 )
-            else:
+            elif payment_type == "оплачено":
                 print(f'[DEBUG signup] провалилсь в else "оплачено"')
                 await callback.message.answer("✅ Вы уже записаны на это мероприятие.")
+            else:
+                print(f'[DEBUG signup] провалилсь в if "наличными" ')
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="💳 Оплатить онлайн", callback_data="pay_online")],
+                    [InlineKeyboardButton(text="💶 Оплачу на месте", callback_data="pay_cash")]
+                    [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
+                ])
+                await callback.message.answer(                
+                    "Вы уже записаны на это мероприятие, но оплата не произведена.\n"
+                    "Хотите оплатить онлайн или наличными?",
+                    reply_markup=keyboard
+                )
             await callback.answer()
             return
 
@@ -251,6 +264,8 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
         [InlineKeyboardButton(text="💵 Оплачу наличными", callback_data="pay_cash")]
     ])
 
+
+                                                                                                            #добавить к опату
     await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
     await state.update_data(user_id=user_id, registration_id=registration_id)
     await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
@@ -261,10 +276,11 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     print(f"[DEBUG pay_cash] Оплата наличными")
     data = await state.get_data()
     user = callback.from_user
+    print(f"[DEBUG pay_cash] user: {user}")
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)",
+        cur.execute("""INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)""",
                     (data['registration_id'], data['user_id'], "наличными", "CASH"))
 
 
@@ -289,6 +305,9 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
     await state.clear()
+
+
+
 
 # -- Получение чека --
 @router.message(RegistrationState.waiting_for_payment_check)

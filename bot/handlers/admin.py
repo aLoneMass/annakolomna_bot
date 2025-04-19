@@ -15,11 +15,13 @@ async def admin_menu(message: Message):
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📋 Список записей", callback_data="show_registrations")],
+        [InlineKeyboardButton(text="📋 Участники", callback_data="show_registrations")],
         [InlineKeyboardButton(text="📅 Мероприятия", callback_data="show_events")],
-        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
+        [InlineKeyboardButton(text="📅 Добавить Мастер-класс", callback_data="show_events")],
+        [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
     ])
     await message.answer("Добро пожаловать в админ-меню 👨‍💼", reply_markup=keyboard)
+
 
 
 
@@ -33,6 +35,8 @@ async def show_registrations(callback: CallbackQuery):
         cur = conn.cursor()
         cur.execute("""
             SELECT 
+                e.id,
+                e.title,
                 u.username,
                 c.child_name,
                 c.comment,
