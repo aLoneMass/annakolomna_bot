@@ -81,7 +81,7 @@ async def show_registrations(callback: CallbackQuery):
             birth_info = "не указана"
         
         text += (
-            f"🍯 Мастер-класс: {event_title}"
+            f"🍯 Мастер-класс: {event_title}\n"
             f"📅 Дата: {date} в {time}\n"
             f"👤 Пользователь: @{username or 'без username'}\n"
             f"👧 Ребёнок: {child}\n🎂 День рождения: {birth_info}\n"
