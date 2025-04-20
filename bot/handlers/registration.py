@@ -169,29 +169,7 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
         """, (user_id, child_name, comment, birth_date ))
         return cur.lastrowid
 
-# # -- Начало регистрации --
-# @router.callback_query(lambda c: c.data and c.data.startswith("signup_"))
-# async def handle_register(callback: CallbackQuery, state: FSMContext):
-#     print(f"[DEBUG] Начало регистрации")
-#     event_index = int(callback.data.split("_")[1])
-#     events = get_all_events()
-#     event = events[event_index]
 
-#     # Распакуем нужные поля
-#     event_id, title, description, date, time, price, qr_path, payment_link, location, photo_path = event
-
-#     # Сохраняем всё в FSMContext
-#     await state.update_data(
-#         event_index=event_index,
-#         event_id=event_id,
-#         event_title=title,
-#         event_date=date,
-#         event_time=time
-#     )
-
-#     await callback.message.answer("👧 Введите имя ребёнка:")
-#     await state.set_state(RegistrationState.entering_child_name)
-#     await callback.answer()
 
 #1 -- Имя ребёнка --
 @router.message(RegistrationState.entering_child_name)
@@ -201,7 +179,7 @@ async def handle_child_name(message: Message, state: FSMContext):
     await message.answer("❗ Есть ли у ребёнка аллергии или пожелания?")
     await state.set_state(RegistrationState.entering_allergy_info)
 
-#2 -- Комментарий --
+#2 -- Запрос комментария --
 @router.message(RegistrationState.entering_allergy_info)
 async def handle_allergy_info(message: Message, state: FSMContext):
     print(f"[DEBUG coment_step] message: {Message}, state: {FSMContext}")
@@ -240,7 +218,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
     print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
-    #Остановился тут
+    
     #event = get_all_events(data['event_id'])
     event = get_all_events(data['event_id'])[0]
     event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
