@@ -45,7 +45,13 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
     await state.update_data(step_index=0)
     await callback.answer()
 
-@router.message()
+@router.message(AdminCreateEventState.title,
+                AdminCreateEventState.description,
+                AdminCreateEventState.photo,
+                AdminCreateEventState.qr,
+                AdminCreateEventState.payment_link,
+                AdminCreateEventState.location,
+                AdminCreateEventState.price)
 async def handle_template_fields(message: Message, state: FSMContext):
     data = await state.get_data()
     step_index = data.get("step_index", 0)
