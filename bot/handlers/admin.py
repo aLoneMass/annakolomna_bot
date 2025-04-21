@@ -45,47 +45,8 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
     await state.update_data(step_index=0)
     await callback.answer()
 
-@router.message(AdminCreateEventState.title,
-                AdminCreateEventState.description,
-                AdminCreateEventState.photo,
-                AdminCreateEventState.qr,
-                AdminCreateEventState.payment_link,
-                AdminCreateEventState.location,
-                AdminCreateEventState.price)
-async def handle_template_fields(message: Message, state: FSMContext):
-    data = await state.get_data()
-    step_index = data.get("step_index", 0)
 
-    if step_index >= len(template_fields):
-        return
 
-    field_name, current_state = template_fields[step_index]
-
-    if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]:
-        if not message.photo:
-            await message.answer("❗ Пожалуйста, отправьте изображение.")
-            return
-        file_id = message.photo[-1].file_id
-        await state.update_data(**{current_state.state: file_id})
-    elif current_state == AdminCreateEventState.price:
-        try:
-            price = int(message.text.strip())
-            await state.update_data(price=price)
-        except ValueError:
-            await message.answer("❗ Введите корректную стоимость.")
-            return
-    else:
-        await state.update_data(**{current_state.state: message.text})
-
-    step_index += 1
-    if step_index < len(template_fields):
-        next_prompt, next_state = template_fields[step_index]
-        await message.answer(next_prompt)
-        await state.set_state(next_state)
-        await state.update_data(step_index=step_index)
-    else:
-        await message.answer("📅 Введите дату(ы) мероприятия в формате ДД.ММ.ГГГГ, через запятую:")
-        await state.set_state(AdminCreateEventState.event_dates)
 
 @router.message(AdminCreateEventState.event_dates)
 async def receive_event_dates(message: Message, state: FSMContext):
@@ -148,11 +109,52 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
     await save_event_template(state, callback.message)
     await callback.answer()
 
-@router.callback_query(F.data == "cancel_event")
-async def cancel_event(callback: CallbackQuery, state: FSMContext):
-    await state.clear()
-    await callback.message.answer("🚫 Создание мероприятия отменено.")
-    await callback.answer()
+
+# Перемещённый обработчик в самый конец
+@router.message(AdminCreateEventState.title,
+                AdminCreateEventState.description,
+                AdminCreateEventState.photo,
+                AdminCreateEventState.qr,
+                AdminCreateEventState.payment_link,
+                AdminCreateEventState.location,
+                AdminCreateEventState.price)
+async def handle_template_fields(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if "step_index" not in data:
+        await message.answer("⚠️ Ошибка: шаблон не был корректно инициализирован. Пожалуйста, начните заново.")
+        return
+    step_index = data.get("step_index", 0)
+
+    if step_index >= len(template_fields):
+        return
+
+    field_name, current_state = template_fields[step_index]
+
+    if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]:
+        if not message.photo:
+            await message.answer("❗ Пожалуйста, отправьте изображение.")
+            return
+        file_id = message.photo[-1].file_id
+        await state.update_data(**{current_state.state: file_id})
+    elif current_state == AdminCreateEventState.price:
+        try:
+            price = int(message.text.strip())
+            await state.update_data(price=price)
+        except ValueError:
+            await message.answer("❗ Введите корректную стоимость.")
+            return
+    else:
+        await state.update_data(**{current_state.state: message.text})
+
+    step_index += 1
+    if step_index < len(template_fields):
+        next_prompt, next_state = template_fields[step_index]
+        await message.answer(next_prompt)
+        await state.set_state(next_state)
+        await state.update_data(step_index=step_index)
+    else:
+        await message.answer("📅 Введите дату(ы) мероприятия в формате ДД.ММ.ГГГГ, через запятую:")
+        await state.set_state(AdminCreateEventState.event_dates)
 
 async def save_event_template(state: FSMContext, message: Message):
     data = await state.get_data()
