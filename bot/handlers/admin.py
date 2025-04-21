@@ -50,7 +50,6 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
 
 
 
-
 @router.message(AdminCreateEventState.event_dates)
 async def receive_event_dates(message: Message, state: FSMContext):
     print(f"[DEBUG receive_event_dates] - мы в него попали через вызов роутера - event_dates")
