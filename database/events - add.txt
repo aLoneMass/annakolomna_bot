@@ -1,0 +1,7 @@
+CREATE TABLE events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    template_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    FOREIGN KEY(template_id) REFERENCES event_templates(id)
+);

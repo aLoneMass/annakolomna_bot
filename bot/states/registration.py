@@ -9,6 +9,7 @@ class RegistrationState(StatesGroup):
     entering_birth_date = State()  # 🆕 новое состояние
     waiting_for_payment_check = State()
     notify_admins_about_registration = State()
+    create_event = State()
     
 
     

@@ -1,0 +1,51 @@
+sqlite> .schema
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    telegram_id INTEGER UNIQUE,
+    username TEXT,
+    full_name TEXT
+);
+CREATE TABLE registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    child_id INTEGER,
+    event_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (child_id) REFERENCES children(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
+);
+CREATE TABLE payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    registration_id INTEGER,
+    user_id INTEGER,
+    payment_type TEXT,     -- "онлайн", "наличными", "не оплачено"
+    check_path TEXT,       -- путь к PDF или фото
+    FOREIGN KEY (registration_id) REFERENCES registrations(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE IF NOT EXISTS "children" (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    child_name TEXT,
+    comment TEXT,
+    birth_date TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE event_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    photo_path TEXT,
+    qr_path TEXT,
+    payment_link TEXT,
+    location TEXT,
+    price INTEGER
+);
+CREATE TABLE events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    template_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    FOREIGN KEY(template_id) REFERENCES event_templates(id)
+);
