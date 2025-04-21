@@ -8,6 +8,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bot.states.admin import AdminCreateEventState
 import sqlite3, os, re
 from config import DB_PATH
+from config import ADMINS 
 from datetime import datetime
 
 router = Router()
