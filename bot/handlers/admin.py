@@ -97,11 +97,11 @@ async def show_event_confirmation(state: FSMContext, message: Message):
     data = await state.get_data()
     print(f"[DEBUG show_event_confirmation] data: {data}")
     text = f"<b>Подтвердите создание мастер-класса:</b>\n"
-    text += f"Название: {data[title]}\n"
-    text += f"Описание: {data[description]}\n"
-    text += f"Цена: {data['price']}₽\n"
-    text += f"Адрес: {data['location']}\n"
-    text += f"Ссылка оплаты: {data['payment_link']}\n"
+    text += f"Название: {data.get('title') or data.get('AdminCreateEventState:title')}"
+    text += f"Описание: {data.get('description') or data.get('AdminCreateEventState:description')}"
+    text += f"Цена: {data.get('price')}₽"
+    text += f"Адрес: {data.get('location') or data.get('AdminCreateEventState:location')}"
+    text += f"Ссылка оплаты: {data.get('payment_link') or data.get('AdminCreateEventState:payment_link')}"
     text += f"\n<b>Расписание:</b>\n"
     for date in data['dates']:
         times = ", ".join(data['time_by_date'][date])
