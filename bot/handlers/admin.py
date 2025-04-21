@@ -120,13 +120,7 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
 
 
 # Перемещённый обработчик в самый конец
-@router.message(AdminCreateEventState.title,
-                AdminCreateEventState.description,
-                AdminCreateEventState.photo,
-                AdminCreateEventState.qr,
-                AdminCreateEventState.payment_link,
-                AdminCreateEventState.location,
-                AdminCreateEventState.price)
+@router.message(AdminCreateEventState.title)
 async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] попали в заполнение шаблона")
     print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
