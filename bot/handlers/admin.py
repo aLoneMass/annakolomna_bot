@@ -145,6 +145,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
         return
 
     field_name, current_state = template_fields[step_index]
+
     print(f"[DEBUG handle_template_fields] Распаковали field_name: {field_name}, current_state: {current_state}")
     if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]:
         print(f"[DEBUG handle_template_fields] зашли в if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]")
@@ -152,7 +153,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
             await message.answer("❗ Пожалуйста, отправьте изображение.")
             return
         file_id = message.photo[-1].file_id
-        await state.update_data(**{current_state.state_name: message.text})
+        await state.update_data(**{current_state.state: file_id})
     elif current_state == AdminCreateEventState.price:
         print(f"[DEBUG handle_template_fields] шаг .price")
         try:
@@ -165,13 +166,13 @@ async def handle_template_fields(message: Message, state: FSMContext):
             return
     else:
         print(f"[DEBUG handle_template_fields] Если не фото и не qr, тообновить state.update_data: {message.text}")
-        await state.update_data(**{current_state.state_name: message.text})
+        await state.update_data(**{current_state.state: message.text})
 
     step_index += 1
     print(f"[DEBUG handle_template_fields] Увеличили индекс+1")
     if step_index < len(template_fields):
-        print(f"[DEBUG handle_template_fields] Пока индекс меньше или равен кол-ву строк шаблона: {next_prompt}, {next_state}")
         next_prompt, next_state = template_fields[step_index]
+        print(f"[DEBUG handle_template_fields] Пока индекс меньше или равен кол-ву строк шаблона: {next_prompt}, {next_state}")
         await message.answer(next_prompt)
         await state.set_state(next_state)
         await state.update_data(step_index=step_index)
