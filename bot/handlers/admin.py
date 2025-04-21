@@ -123,7 +123,7 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
 @router.message(AdminCreateEventState.title)
 async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] попали в заполнение шаблона")
-    print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
+    #print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
     print(await state.get_state())
     data = await state.get_data()
     if "step_index" not in data:
