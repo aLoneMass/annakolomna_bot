@@ -95,9 +95,10 @@ async def receive_event_times(message: Message, state: FSMContext):
 async def show_event_confirmation(state: FSMContext, message: Message):
     print(f"[DEBUG show_event_confirmation]")
     data = await state.get_data()
+    print(f"[DEBUG show_event_confirmation] data: {data}")
     text = f"<b>Подтвердите создание мастер-класса:</b>\n"
-    text += f"Название: {data['title']}\n"
-    text += f"Описание: {data['description']}\n"
+    text += f"Название: {data[title]}\n"
+    text += f"Описание: {data[description]}\n"
     text += f"Цена: {data['price']}₽\n"
     text += f"Адрес: {data['location']}\n"
     text += f"Ссылка оплаты: {data['payment_link']}\n"
@@ -134,6 +135,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
     #print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
     print(await state.get_state())
     data = await state.get_data()
+    print(f"[DEBUG handle_template_fields] data:{data}")
     if "step_index" not in data:
         print(f"[DEBUG handle_template_fields] индекс шага не существует. ошибка. пробуй заново")
         await message.answer("⚠️ Ошибка: шаблон не был корректно инициализирован. Пожалуйста, начните заново.")
