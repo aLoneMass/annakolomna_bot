@@ -40,6 +40,7 @@ template_fields = [
 
 @router.callback_query(F.data == "create_event")
 async def start_create_template(callback: CallbackQuery, state: FSMContext):
+    print(f"[DEBUG create_event]")
     await callback.message.answer(template_fields[0][0])
     await state.set_state(template_fields[0][1])
     await state.update_data(step_index=0)
@@ -50,6 +51,7 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminCreateEventState.event_dates)
 async def receive_event_dates(message: Message, state: FSMContext):
+    print(f"[DEBUG receive_event_dates]")
     raw_dates = message.text.split(',')
     parsed_dates = []
     for d in raw_dates:
@@ -65,6 +67,7 @@ async def receive_event_dates(message: Message, state: FSMContext):
 
 @router.message(AdminCreateEventState.event_times)
 async def receive_event_times(message: Message, state: FSMContext):
+    print(f"[DEBUG receive_event_times]")
     data = await state.get_data()
     dates = data["dates"]
     index = data["current_date_index"]
@@ -86,6 +89,7 @@ async def receive_event_times(message: Message, state: FSMContext):
         await show_event_confirmation(state, message)
 
 async def show_event_confirmation(state: FSMContext, message: Message):
+    print(f"[DEBUG show_event_confirmation]")
     data = await state.get_data()
     text = f"<b>Подтвердите создание мастер-класса:</b>\n"
     text += f"Название: {data['title']}\n"
@@ -106,6 +110,7 @@ async def show_event_confirmation(state: FSMContext, message: Message):
 
 @router.callback_query(F.data == "confirm_event")
 async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
+    print(f"[DEBUG confirm_event_save]")
     await save_event_template(state, callback.message)
     await callback.answer()
 
@@ -119,6 +124,7 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
                 AdminCreateEventState.location,
                 AdminCreateEventState.price)
 async def handle_template_fields(message: Message, state: FSMContext):
+    print(f"[DEBUG handle_template_fields]")
     data = await state.get_data()
     if "step_index" not in data:
         await message.answer("⚠️ Ошибка: шаблон не был корректно инициализирован. Пожалуйста, начните заново.")
