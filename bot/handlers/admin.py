@@ -45,6 +45,7 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
     await state.set_state(template_fields[0][1])
     await state.update_data(step_index=0)
     await callback.answer()
+    print(f"[DEBUG create_event]template_fields[0][1]:{template_fields[0][1]}")
 
 
 
