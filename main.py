@@ -5,6 +5,7 @@ from config import BOT_TOKEN
 from bot.handlers import start, schedule, registration, admin
 
 
+
 async def setup_bot_commands(bot: Bot):
     commands = [
         BotCommand(command="schedule", description="📅 Расписание мероприятий"),

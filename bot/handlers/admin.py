@@ -46,6 +46,7 @@ async def start_create_template(callback: CallbackQuery, state: FSMContext):
     await state.update_data(step_index=0)
     await callback.answer()
     print(f"[DEBUG create_event]template_fields[0][1]:{template_fields[0][1]}")
+    print(f"await state.get_state: {await state.get_state()}")
 
 
 
@@ -129,6 +130,8 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
                 AdminCreateEventState.price)
 async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] попали в заполнение шаблона")
+    print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state}")
+    print(await state.get_state())
     data = await state.get_data()
     if "step_index" not in data:
         print(f"[DEBUG handle_template_fields] индекс шага не существует. ошибка. пробуй заново")
