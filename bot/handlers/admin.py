@@ -130,7 +130,7 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
                 AdminCreateEventState.price)
 async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] попали в заполнение шаблона")
-    print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state}")
+    print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
     print(await state.get_state())
     data = await state.get_data()
     if "step_index" not in data:
@@ -151,7 +151,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
             await message.answer("❗ Пожалуйста, отправьте изображение.")
             return
         file_id = message.photo[-1].file_id
-        await state.update_data(**{current_state.state: file_id})
+        await state.update_data(**{current_state.state_name: message.text})
     elif current_state == AdminCreateEventState.price:
         print(f"[DEBUG handle_template_fields] шаг .price")
         try:
@@ -164,7 +164,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
             return
     else:
         print(f"[DEBUG handle_template_fields] Если не фото и не qr, тообновить state.update_data: {message.text}")
-        await state.update_data(**{current_state.state: message.text})
+        await state.update_data(**{current_state.state_name: message.text})
 
     step_index += 1
     print(f"[DEBUG handle_template_fields] Увеличили индекс+1")
