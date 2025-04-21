@@ -2,9 +2,9 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.enums import ParseMode
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.filters import StateFilter
 from bot.states.admin import AdminCreateEventState
 import sqlite3, os, re
 from config import DB_PATH
@@ -120,7 +120,15 @@ async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
 
 
 # Перемещённый обработчик в самый конец
-@router.message(AdminCreateEventState.title)
+@router.message(StateFilter(
+    AdminCreateEventState.title,
+    AdminCreateEventState.description,
+    AdminCreateEventState.photo,
+    AdminCreateEventState.qr,
+    AdminCreateEventState.payment_link,
+    AdminCreateEventState.location,
+    AdminCreateEventState.price
+))
 async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] попали в заполнение шаблона")
     #print(f"[DEBUG FSM state] step_index = {step_index}, state = {current_state.state_name: message.text}")
