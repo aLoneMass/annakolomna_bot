@@ -5,14 +5,14 @@ def get_event_navigation_keyboard_with_signup(index: int, total: int, event_id: 
     buttons = []
 
     nav_row = []
-    if index == total-1:
+    if total-1 == 0:
         print('мероприятие одно, кнопки навигации не добавляем')
-    if (index == 0) and (index < total - 1):
+    elif (index == 0) and (index < total - 1):
         nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{index}"))
-    if (index > 0) and (index < total-1):
+    elif (index > 0) and (index < total-1):
         nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{index}"))
         nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{index}"))
-    if (index == total-1) and (total > 0):
+    elif (index == total-1) and (total > 0):
         nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{index}"))
     buttons.append(nav_row)
 
