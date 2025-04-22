@@ -96,12 +96,12 @@ async def show_event_confirmation(state: FSMContext, message: Message):
     print(f"[DEBUG show_event_confirmation]")
     data = await state.get_data()
     print(f"[DEBUG show_event_confirmation] data: {data}")
-    text = f"<b>Подтвердите создание мастер-класса:</b>\n"
-    text += f"Название: {data.get('title') or data.get('AdminCreateEventState:title')}"
-    text += f"Описание: {data.get('description') or data.get('AdminCreateEventState:description')}"
-    text += f"Цена: {data.get('price')}₽"
-    text += f"Адрес: {data.get('location') or data.get('AdminCreateEventState:location')}"
-    text += f"Ссылка оплаты: {data.get('payment_link') or data.get('AdminCreateEventState:payment_link')}"
+    text = f"<b>Подтвердите создание мастер-класса:</b>"
+    text += f"\nНазвание: {data.get('title') or data.get('AdminCreateEventState:title')}"
+    text += f"\nОписание: {data.get('description') or data.get('AdminCreateEventState:description')}"
+    text += f"\nЦена: {data.get('price')}₽"
+    text += f"\nАдрес: {data.get('location') or data.get('AdminCreateEventState:location') }"
+    text += f"\nСсылка оплаты: {data.get('payment_link') or data.get('AdminCreateEventState:payment_link')}"
     text += f"\n<b>Расписание:</b>\n"
     for date in data['dates']:
         times = ", ".join(data['time_by_date'][date])
@@ -113,11 +113,6 @@ async def show_event_confirmation(state: FSMContext, message: Message):
     ])
     await message.answer(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
 
-@router.callback_query(F.data == "confirm_event")
-async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
-    print(f"[DEBUG confirm_event_save]")
-    await save_event_template(state, callback.message)
-    await callback.answer()
 
 
 # Перемещённый обработчик в самый конец
@@ -183,22 +178,35 @@ async def handle_template_fields(message: Message, state: FSMContext):
         await message.answer("📅 Введите дату(ы) мероприятия в формате ДД.ММ.ГГГГ, через запятую:")
         await state.set_state(AdminCreateEventState.event_dates)
 
+
+
+@router.callback_query(F.data == "confirm_event")
+async def confirm_event_save(callback: CallbackQuery, state: FSMContext):
+    print(f"[DEBUG confirm_event_save]")
+    await save_event_template(state, callback.message)
+    await callback.answer()
+
+
 async def save_event_template(state: FSMContext, message: Message):
+    print(f"[DEBUG save_event_template]")
     data = await state.get_data()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    print(f"[DEBUG save_event_template] data: {data}")
 
+
+    #AdminCreateEventState:title
     cursor.execute("""
         INSERT INTO event_templates (title, description, photo_path, qr_path, payment_link, location, price)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
-        data["title"],
-        data["description"],
-        data["photo"],
-        data["qr"],
-        data["payment_link"],
-        data["location"],
-        data["price"]
+        data["AdminCreateEventState:title"],
+        data["AdminCreateEventState:description"],
+        data["AdminCreateEventState:photo"],
+        data["AdminCreateEventState:qr"],
+        data["AdminCreateEventState:payment_link"],
+        data["AdminCreateEventState:location"],
+        data["AdminCreateEventState:price"]
     ))
     template_id = cursor.lastrowid
 
