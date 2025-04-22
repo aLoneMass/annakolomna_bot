@@ -17,7 +17,7 @@ def get_all_events(query: str | int):
                     e.id, et.title, et.description, e.date, e.time, et.price,
                     et.qr_path, et.payment_link, et.location, et.photo_path
                 FROM events e
-                JOIN event_tempates et ON e.template_id = et.id
+                JOIN event_templates et ON e.template_id = et.id
                 WHERE id = ?
             """, (query,))
         else:
@@ -27,7 +27,7 @@ def get_all_events(query: str | int):
                     e.id, et.title, et.description, e.date, e.time, et.price,
                     et.qr_path, et.payment_link, et.location, et.photo_path
                 FROM events e
-                JOIN event_tempates et ON e.template_id = et.id
+                JOIN event_templates et ON e.template_id = et.id
                 WHERE e.date >= ?
                 ORDER BY date, time
             """, (query,))
