@@ -111,7 +111,7 @@ async def handle_navigation(callback: CallbackQuery):
 
         print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {photo_uniq}")
         caption = (
-            f"🍯 <b>{title}<b>\n"
+            f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
             f"🗓 <b>{date_}</b> в <b>{time}</b>\n"
             f"📍 <i>{location}</i>\n"
