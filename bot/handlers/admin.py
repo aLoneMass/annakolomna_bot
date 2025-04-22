@@ -147,7 +147,7 @@ async def handle_template_fields(message: Message, state: FSMContext):
     if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]:
         print(f"[DEBUG handle_template_fields] зашли в if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]")
         #Здесь сохраняем фото на диск
-        
+
         if not message.photo:
             await message.answer("❗ Пожалуйста, отправьте изображение.")
             return
@@ -195,6 +195,7 @@ async def save_event_template(state: FSMContext, message: Message):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     print(f"[DEBUG save_event_template] data: {data}")
+    print(f"[DEBUG save_event_template] Message: {message}")
 
 
     #AdminCreateEventState:title

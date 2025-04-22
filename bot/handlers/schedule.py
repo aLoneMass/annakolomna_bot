@@ -109,9 +109,7 @@ async def handle_navigation(callback: CallbackQuery):
         event = events[new_index]
         event_id, title, description, date_, time, price, qr_path, payment_link, location, photo_uniq = event
 
-        
-        photo = photo_uniq
-        #print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {filename}")
+        print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {photo_uniq}")
         caption = (
             f"🍯 <b>{title}<b>\n"
             f"📌 <b>{description}</b>\n"
