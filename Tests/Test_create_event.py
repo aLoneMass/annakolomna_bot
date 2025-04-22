@@ -1,4 +1,7 @@
 import asyncio
+import sqlite3
+from config import DB_PATH
+
 import pytest
 from aiogram.fsm.context import FSMContext
 from types import SimpleNamespace

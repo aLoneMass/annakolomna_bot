@@ -146,6 +146,8 @@ async def handle_template_fields(message: Message, state: FSMContext):
     print(f"[DEBUG handle_template_fields] Распаковали field_name: {field_name}, current_state: {current_state}")
     if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]:
         print(f"[DEBUG handle_template_fields] зашли в if current_state in [AdminCreateEventState.photo, AdminCreateEventState.qr]")
+        #Здесь сохраняем фото на диск
+        
         if not message.photo:
             await message.answer("❗ Пожалуйста, отправьте изображение.")
             return

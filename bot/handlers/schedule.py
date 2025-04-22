@@ -6,6 +6,7 @@ from datetime import date
 from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard_with_signup
 from aiogram.types import FSInputFile
+from aiogram.types import InputMediaPhoto
 
 
 import os
@@ -96,21 +97,21 @@ async def handle_navigation(callback: CallbackQuery):
 
     # Текущий индекс получаем из callback_data
     data = callback.data
-    photo_path = data_from_db["photo_path"]
+    #photo_path = data_from_db["photo_path"]
     print(f"[DEBUG handle_navigation] data:{data}")
     current_index = int(data.split('_')[1])
     new_index = current_index + 1 if data.startswith("next_") else current_index - 1
 
-    filename = f"event_{event}.jpg"
-    photo_path = os.path.join(PHOTO_DIR, filename)
+    #filename = f"event_{event}.jpg"
+    #photo_path = os.path.join(PHOTO_DIR, filename)
 
     if 0 <= new_index < total:
         event = events[new_index]
-        event_id, title, description, date_, time, price, qr_path, payment_link, location, photo_path = event
+        event_id, title, description, date_, time, price, qr_path, payment_link, location, photo_uniq = event
 
         
-        photo = FSInputFile(photo_path)
-        print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {filename}")
+        photo = photo_uniq
+        #print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {filename}")
         caption = (
             f"🍯 <b>{title}<b>\n"
             f"📌 <b>{description}</b>\n"
@@ -121,12 +122,19 @@ async def handle_navigation(callback: CallbackQuery):
 
         keyboard = get_event_navigation_keyboard_with_signup(new_index, total, event_id)
 
-        await callback.message.edit_text(
-            photo=photo,
-            text=caption,
-            reply_markup=keyboard,
-            parse_mode="HTML"
+        media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
+
+        await callback.message.edit_media(
+            media=media,
+            reply_markup=keyboard
         )
+
+        # await callback.message.edit_text(
+        #     photo=photo,
+        #     text=caption,
+        #     reply_markup=keyboard,
+        #     parse_mode="HTML"
+        # )
 
     await callback.answer()
 
