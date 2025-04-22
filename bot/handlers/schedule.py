@@ -67,6 +67,7 @@ async def send_schedule(message: Message): #Определяется асинх�
     # description, date, time, price, qr_path, payment_link, location, photo_path — соответствующие данные мероприятия
     
     caption = (             #Формируется текст сообщения (caption) с форматированием HTML: Описание, дата, время, место проведения, и ссылка для оплаты.
+        f"🍯 <b>{title}</b>\n"
         f"📌 <b>{description}</b>\n"
         f"🗓 <b>{event_date}</b> в <b>{time}</b>\n"
         f"📍 <i>{location}</i>\n"
@@ -120,12 +121,12 @@ async def handle_navigation(callback: CallbackQuery):
 
         keyboard = get_event_navigation_keyboard_with_signup(new_index, total, event_id)
 
+        print(f"[DEBUG handle_navigation] photo_uniq={photo_uniq}")
+        print(f"[DEBUG handle_navigation] caption:\n{caption}")
+
         media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
 
-        await callback.message.edit_media(
-            media=media,
-            reply_markup=keyboard
-        )
+        await callback.message.edit_media(media=media, reply_markup=keyboard)
 
         # await callback.message.edit_text(
         #     photo=photo,
