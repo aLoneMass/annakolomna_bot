@@ -200,13 +200,13 @@ async def save_event_template(state: FSMContext, message: Message):
         INSERT INTO event_templates (title, description, photo_path, qr_path, payment_link, location, price)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
-        data["AdminCreateEventState:title"],
-        data["AdminCreateEventState:description"],
-        data["AdminCreateEventState:photo"],
-        data["AdminCreateEventState:qr"],
-        data["AdminCreateEventState:payment_link"],
-        data["AdminCreateEventState:location"],
-        data["AdminCreateEventState:price"]
+        data.get("title") or data.get("AdminCreateEventState:title"),
+        data.get("description") or data.get("AdminCreateEventState:description"),
+        data.get("photo") or data.get("AdminCreateEventState:photo"),
+        data.get("qr") or data.get("AdminCreateEventState:qr"),
+        data.get("payment_link") or data.get("AdminCreateEventState:payment_link"),
+        data.get("location") or data.get("AdminCreateEventState:location"),
+        data.get("price") or data.get("AdminCreateEventState:price")
     ))
     template_id = cursor.lastrowid
 
