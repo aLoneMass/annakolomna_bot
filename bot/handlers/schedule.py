@@ -69,18 +69,18 @@ async def handle_date_selection(callback: CallbackQuery):
     times = get_times_for_event_on_date(event_id, date_str)
 
     time_buttons = [
-        [InlineKeyboardButton(text=f"\ud83d\udd52 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
+        [InlineKeyboardButton(text=f"🕑 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
         for t in times
     ]
 
     back_button = [
-        [InlineKeyboardButton(text="\u2b05\ufe0f Назад", callback_data=f"prev_0")]
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data=f"prev_0")]
     ]
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
 
     await callback.message.edit_text(
-        text=f"\ud83d\udcc5 <b>{date_str}</b>\n\n\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0440\u0435\u043c\u044f, \u0447\u0442\u043e\u0431\u044b \u0437\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f \u043d\u0430 \u043c\u0430\u0441\u0442\u0435\u0440-\u043a\u043b\u0430\u0441\u0441:",
+        text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:",
         parse_mode="HTML",
         reply_markup=keyboard
     )
