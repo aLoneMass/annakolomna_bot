@@ -121,7 +121,7 @@ async def handle_date_selection(callback: CallbackQuery):
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + [back_button])
 
     await callback.message.edit_text(
-        text=f"📅 <b>{date_str}</b>\n\n\u0412ыберите время, чтобы записаться на мастер-класс:",
+        text=f"📅 <b>{date_str}</b>\n\nВыберите время, чтобы записаться на мастер-класс:",
         parse_mode="HTML",
         reply_markup=keyboard
     )
