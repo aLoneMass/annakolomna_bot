@@ -30,7 +30,7 @@ async def handle_schedule_text_button(message: Message):
 
 
 # 📅 Обработка нажатия inline-кнопки "📅 Расписание мероприятий"
-@router.callback_query(F.data == "show_schedule") #callback_query — он ловит события, когда пользователь нажимает кнопку с callback_data="show_schedule".
+#@router.callback_query(F.data == "show_schedule") #callback_query — он ловит события, когда пользователь нажимает кнопку с callback_data="show_schedule".
                                                 #F.data == "show_schedule" — это фильтр: бот вызовет эту функцию только если callback_data равно "show_schedule".
                                                 #F — это сокращение от aiogram.filters, используется для обращения к полям объекта без создания кастомных фильтров.
 async def handle_schedule_callback(callback: CallbackQuery): # Определяется асинхронная функция, которая принимает объект CallbackQuery
@@ -41,7 +41,8 @@ async def handle_schedule_callback(callback: CallbackQuery): # Определя�
 
 
 # 🧠 Универсальная функция показа мероприятия вызывается первый раз, потом после нажатия кнопок вызывается новая процедура handle_navigation
-async def send_schedule(message: Message): #Определяется асинхронная функция, которая принимает объект message.
+@router.callback_query(F.data == "show_schedule")
+async def send_schedule(callback: CallbackQuery): #Определяется асинхронная функция, которая принимает объект message.
     today = date.today().isoformat()  # Результат: '2025-04-17'
     print (f'[DEBUG send_schedule] today:{today} ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
     events = get_all_events(today)       #Получаем список всех мероприятий из функции get_all_events()
@@ -82,7 +83,7 @@ async def send_schedule(message: Message): #Определяется асинх�
                                                                                         # event_id — ID текущего мероприятия (используется для логики записи и переходов)
     media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
 
-    await message.answer(media=media, reply_markup=keyboard)
+    await callback.message.edit_media(media=media, reply_markup=keyboard)
     
     # await message.answer(           # Бот отправляет сообщение пользователю:
     #     text=caption,               # С текстом caption
