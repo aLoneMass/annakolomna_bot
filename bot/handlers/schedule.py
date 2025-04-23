@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from datetime import date
 from bot.services.events import get_all_events
-from bot.keyboards.event_nav import get_event_navigation_keyboard_with_signup
+from bot.keyboards.event_nav import get_event_navigation_keyboard
 from aiogram.types import FSInputFile
 from aiogram.types import InputMediaPhoto
 import sqlite3

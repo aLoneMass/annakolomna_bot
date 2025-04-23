@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from schedule import get_dates_for_event
+from bot.handlers.schedule import get_dates_for_event
 
 
 def get_event_navigation_keyboard(index: int, total: int, event_id: int) -> InlineKeyboardMarkup:
