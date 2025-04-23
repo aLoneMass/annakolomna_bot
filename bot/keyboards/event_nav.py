@@ -69,6 +69,7 @@ def get_times_for_event_on_date(event_id: int, date_str: str):
 
 def get_event_navigation_keyboard(event_index: int, total_events: int, event_id: int):
     dates = get_dates_for_event(event_id)
+    print(F"[DEBUG getevent_navigation_keyboard] dates:\n {dates}")
 
     date_buttons = [
         [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
