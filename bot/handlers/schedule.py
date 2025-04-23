@@ -93,7 +93,7 @@ async def send_schedule(callback: CallbackQuery): #Определяется ас
 
 
 #Переписываем процедуру показать расписание
-@router.callback_query(lambda c: c.data.startswith(("next_", "prev_"), "show_schedule"))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
+@router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
     today = date.today().isoformat()
