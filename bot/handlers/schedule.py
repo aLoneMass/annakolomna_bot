@@ -7,9 +7,10 @@ from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard_with_signup
 from aiogram.types import FSInputFile
 from aiogram.types import InputMediaPhoto
+import sqlite3
+from config import DB_PATH
 
 
-import os
 
 
 router = Router()
@@ -119,7 +120,7 @@ async def handle_navigation(callback: CallbackQuery):
             f"💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
 
-        keyboard = get_event_navigation_keyboard_with_signup(new_index, total, event_id)
+        keyboard = get_event_navigation_keyboard(new_index, total, event_id)
 
         print(f"[DEBUG handle_navigation] photo_uniq={photo_uniq}")
         print(f"[DEBUG handle_navigation] caption:\n{caption}")
@@ -135,3 +136,16 @@ async def handle_navigation(callback: CallbackQuery):
 async def handle_close(callback: CallbackQuery):
     await callback.message.delete()
     await callback.answer()
+
+
+
+def get_dates_for_event(event_id: int):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT DISTINCT date FROM events
+            WHERE template_id = ?
+            ORDER BY date;
+        """, (event_id,))
+        rows = cursor.fetchall()
+        return [r[0] for r in rows]

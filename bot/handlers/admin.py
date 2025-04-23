@@ -6,7 +6,7 @@ from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButto
 from aiogram.enums import ParseMode
 from aiogram.filters import StateFilter
 from bot.states.admin import AdminCreateEventState
-import sqlite3, os, re
+import sqlite3, re
 from config import DB_PATH
 from config import ADMINS 
 from datetime import datetime
