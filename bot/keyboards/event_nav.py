@@ -71,7 +71,7 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
     dates = get_dates_for_event(event_id)
 
     date_buttons = [
-        [InlineKeyboardButton(text=f"\ud83d\udcc5 {d}", callback_data=f"date_{event_id}_{d}")]
+        [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
         for d in dates
     ]
 
@@ -110,18 +110,18 @@ async def handle_date_selection(callback: CallbackQuery):
     times = get_times_for_event_on_date(event_id, date_str)
 
     time_buttons = [
-        [InlineKeyboardButton(text=f"\ud83d\udd52 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
+        [InlineKeyboardButton(text=f"🕑 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
         for t in times
     ]
 
     back_button = [
-        InlineKeyboardButton(text="\u2b05\ufe0f Назад", callback_data=f"event_{event_id}")
+        InlineKeyboardButton(text="◀️ Назад", callback_data=f"event_{event_id}")
     ]
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + [back_button])
 
     await callback.message.edit_text(
-        text=f"\ud83d\udcc5 <b>{date_str}</b>\n\n\u0412ыберите время, чтобы записаться на мастер-класс:",
+        text=f"📅 <b>{date_str}</b>\n\n\u0412ыберите время, чтобы записаться на мастер-класс:",
         parse_mode="HTML",
         reply_markup=keyboard
     )
