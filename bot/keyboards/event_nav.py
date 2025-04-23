@@ -86,6 +86,8 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
         nav_buttons.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}"))
     elif (event_index == total_events-1) and (total_events > 0):
         nav_buttons.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}"))
+    nav_buttons.append([
+         InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
     #nav_buttons.append(nav_row)
 
 

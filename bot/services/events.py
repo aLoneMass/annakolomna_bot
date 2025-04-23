@@ -14,7 +14,7 @@ def get_all_events(query: str | int):
             # Если это целое число — ищем по event_id
             cur.execute("""
                 SELECT
-                    e.id, et.title, et.description, e.date, e.time, et.price,
+                    et.id, et.title, et.description, e.date, e.time, et.price,
                     et.qr_path, et.payment_link, et.location, et.photo_path
                 FROM events e
                 JOIN event_templates et ON e.template_id = et.id
@@ -35,3 +35,16 @@ def get_all_events(query: str | int):
         events = cur.fetchall()
         print(f"[DEBUG get_all_events]: {events}")
         return events
+
+
+def get_all_templates():
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                id, title, description, price,
+                qr_path, payment_link, location, photo_path
+            FROM event_templates
+            ORDER BY id;
+        """)
+        return cursor.fetchall()

@@ -3,7 +3,7 @@ from aiogram import types
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from datetime import date
-from bot.services.events import get_all_events
+from bot.services.events import get_all_events, get_all_templates
 from bot.keyboards.event_nav import get_event_navigation_keyboard
 from aiogram.types import FSInputFile
 from aiogram.types import InputMediaPhoto
@@ -97,8 +97,10 @@ PHOTO_DIR = "data/event_photos"
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
-    today = date.today().isoformat()
-    events = get_all_events(today)
+    #today = date.today().isoformat()  
+    #events = get_all_events(today)
+
+    templates = get_all_templates()
     total = len(events)
 
     # Текущий индекс получаем из callback_data
@@ -108,19 +110,20 @@ async def handle_navigation(callback: CallbackQuery):
     new_index = current_index + 1 if data.startswith("next_") else current_index - 1
 
     if 0 <= new_index < total:
-        event = events[new_index]
-        event_id, title, description, date_, time, price, qr_path, payment_link, location, photo_uniq = event
+        template = templates[new_index]
+        (template_id, title, description, price,
+            qr_path, payment_link, location, photo_uniq
+        ) = template
 
         print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {photo_uniq}")
         caption = (
             f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
-            f"🗓 <b>{date_}</b> в <b>{time}</b>\n"
-            f"📍 <i>{location}</i>\n"
+            f"📍 <a href=\"{location}\">Адрес тут</a>\n\n"
             f"💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
 
-        keyboard = get_event_navigation_keyboard(new_index, total, event_id)
+        keyboard = get_event_navigation_keyboard(new_index, total, template_id)
 
         print(f"[DEBUG handle_navigation] photo_uniq={photo_uniq}")
         print(f"[DEBUG handle_navigation] caption:\n{caption}")
