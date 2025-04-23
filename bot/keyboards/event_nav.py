@@ -77,23 +77,26 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 
     #
     nav_buttons = []
-    nav_row = []
-    if total_events-1 == 0:
+    if total_events - 1 == 0:
         print('мероприятие одно, кнопки навигации не добавляем')
-    elif (event_index == 0) and (event_index < total_events - 1):
-        nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}"))
-    elif (event_index > 0) and (event_index < total_events-1):
-        nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}"))
-        nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}"))
-    elif (event_index == total_events-1) and (total_events > 0):
-        nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}"))
-    nav_buttons.append(nav_row)
-    nav_buttons.append([
-        InlineKeyboardButton(text="❌ Закрыть", callback_data="close")
-        ])
+    elif event_index == 0 and event_index < total_events - 1:
+        nav_buttons = [
+            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}")
+        ]
+    elif 0 < event_index < total_events - 1:
+        nav_buttons = [
+            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}"),
+            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}")
+        ]
+    elif event_index == total_events - 1 and total_events > 0:
+        nav_buttons = [
+            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}")
+        ]
 
     if nav_buttons:
         date_buttons.append(nav_buttons)
+
+    date_buttons.append([InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
 
     return InlineKeyboardMarkup(inline_keyboard=date_buttons)
 
