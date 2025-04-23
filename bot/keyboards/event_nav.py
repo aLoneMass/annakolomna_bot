@@ -32,7 +32,10 @@ def get_event_navigation_keyboard(index: int, total: int, event_id: int) -> Inli
         InlineKeyboardButton(text="❌ Закрыть", callback_data="close")
     ])
 
-    return InlineKeyboardMarkup(inline_keyboard=date_buttons + [buttons] if buttons else date_buttons)
+    if buttons:
+        date_buttons.append(buttons)
+
+    return InlineKeyboardMarkup(inline_keyboard=date_buttons )
 
 def get_dates_for_event(event_id: int):
     with sqlite3.connect(DB_PATH) as conn:
