@@ -41,7 +41,7 @@ async def handle_schedule_callback(callback: CallbackQuery): # Определя�
 
 
 # 🧠 Универсальная функция показа мероприятия вызывается первый раз, потом после нажатия кнопок вызывается новая процедура handle_navigation
-@router.callback_query(F.data == "show_schedule")
+#@router.callback_query(F.data == "show_schedule")
 async def send_schedule(callback: CallbackQuery): #Определяется асинхронная функция, которая принимает объект message.
     today = date.today().isoformat()  # Результат: '2025-04-17'
     print (f'[DEBUG send_schedule] today:{today} ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
@@ -93,7 +93,7 @@ async def send_schedule(callback: CallbackQuery): #Определяется ас
 
 
 #Переписываем процедуру показать расписание
-@router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
+@router.callback_query(lambda c: c.data.startswith(("next_", "prev_", "show_schedule")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
     today = date.today().isoformat()
