@@ -6,7 +6,7 @@ from datetime import date
 from bot.services.events import get_all_events, get_all_templates
 from bot.keyboards.event_nav import get_event_navigation_keyboard
 from aiogram.types import FSInputFile
-from aiogram.types import InputMediaPhoto
+from aiogram.types import InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
 import sqlite3
 from config import DB_PATH
 
@@ -15,83 +15,6 @@ from config import DB_PATH
 
 router = Router()
 PHOTO_DIR = "data/event_photos"
-
-
-# # 📅 Обработка команды /schedule
-# @router.message(Command("schedule"))
-# async def handle_schedule_command(message: Message):
-#     print("[DEBUG] команда /schedule получена")
-#     await send_schedule(message)
-
-
-# # 📅 Обработка кнопки "📅 Расписание мероприятий"
-# @router.message(F.text == "📅 Расписание мероприятий")
-# async def handle_schedule_text_button(message: Message):
-#     await send_schedule(message)
-
-
-# # 📅 Обработка нажатия inline-кнопки "📅 Расписание мероприятий"
-# #@router.callback_query(F.data == "show_schedule") #callback_query — он ловит события, когда пользователь нажимает кнопку с callback_data="show_schedule".
-#                                                 #F.data == "show_schedule" — это фильтр: бот вызовет эту функцию только если callback_data равно "show_schedule".
-#                                                 #F — это сокращение от aiogram.filters, используется для обращения к полям объекта без создания кастомных фильтров.
-# async def handle_schedule_callback(callback: CallbackQuery): # Определяется асинхронная функция, которая принимает объект CallbackQuery
-#                                                                 #Этот объект содержит информацию о том, кто нажал кнопку, что было в callback_data, и к какому сообщению кнопка прикреплена
-#     await send_schedule(callback.message) #Вызывается функция send_schedule(...), и ей передаётся callback.message — то есть сообщение, к которому была прикреплена кнопка
-#     await callback.answer() #Очень важный момент: подтверждение нажатия кнопки. Без этого Telegram будет показывать "часики" (ожидание), думая, что бот ещё не ответил
-#                             #callback.answer() не обязательно должен что-то отображать пользователю, он просто говорит Telegram: ✅ "Я обработал это нажатие".
-
-
-# # 🧠 Универсальная функция показа мероприятия вызывается первый раз, потом после нажатия кнопок вызывается новая процедура handle_navigation
-# #@router.callback_query(F.data == "show_schedule")
-# async def send_schedule(callback: CallbackQuery): #Определяется асинхронная функция, которая принимает объект message.
-#     today = date.today().isoformat()  # Результат: '2025-04-17'
-#     print (f'[DEBUG send_schedule] today:{today} ')                                        #Это сообщение, к которому бот отвечает (например, при нажатии кнопки "📅 Расписание мероприятий").
-#     events = get_all_events(today)       #Получаем список всех мероприятий из функции get_all_events()
-#     print (f"[DEBUG send_schedule] события полученные от функции get_all_events: {events}")   
-#     if not events:
-#         await message.answer("Пока нет запланированных мероприятий.")
-#         return
-
-
-#     #
-#     # Обратить внимание на то, что в будущем прошедшие события надо будет отсекать по текущей дате, а не брать нулевое, как это сделано ниже
-#     #
-
-#     index = 0       # Устанавливается начальный индекс события — это первое (самое ближайшее) мероприятие в списке
-#     event = events[index] #Извлекается первое мероприятие из списка.
-#     print(f'[DEBUG send_schedule] список событий: {event}')
-
-
-#     event_id, title, description, event_date, time, price, qr_path, payment_link,  location, photo_uniq = event   #Распаковка полей мероприятия в отдельные переменные
-#     # Ожидается, что event — это кортеж или список с такими значениями:
-#     # event_id — уникальный идентификатор события
-#     # title — заголовок (в этом коде не используется, возможно, на будущее)
-#     # description, date, time, price, qr_path, payment_link, location, photo_path — соответствующие данные мероприятия
-    
-#     caption = (             #Формируется текст сообщения (caption) с форматированием HTML: Описание, дата, время, место проведения, и ссылка для оплаты.
-#         f"🍯 <b>{title}</b>\n"
-#         f"📌 <b>{description}</b>\n"
-#         f"🗓 <b>{event_date}</b> в <b>{time}</b>\n"
-#         f"📍 <i>{location}</i>\n"
-#         f"💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
-#     )
-
-
-#     keyboard = get_event_navigation_keyboard_with_signup(index, len(events), event_id)  #ызывается функция get_event_navigation_keyboard_with_signup(...), которая формирует инлайн-клавиатуру с кнопками:
-#                                                                                         #Например, "Далее", "Записаться", "Выход" и т.д.
-#                                                                                         # Аргументы: index — текущая позиция в списке мероприятий 
-#                                                                                         # len(events) — общее количество мероприятий
-#                                                                                         # event_id — ID текущего мероприятия (используется для логики записи и переходов)
-#     media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
-
-#     await callback.message.edit_media(media=media, reply_markup=keyboard)
-    
-    # await message.answer(           # Бот отправляет сообщение пользователю:
-    #     text=caption,               # С текстом caption
-    #     reply_markup=keyboard,      #С кнопками keyboard
-    #     parse_mode="HTML"           #С включённым HTML-разметчиком (parse_mode="HTML") — для жирного текста, ссылок и т.д
-    # )
-
 
 #Переписал процедуру "показать расписание"
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
@@ -132,6 +55,49 @@ async def handle_navigation(callback: CallbackQuery):
 
         await callback.message.edit_media(media=media, reply_markup=keyboard)
 
+    await callback.answer()
+
+
+
+
+@router.callback_query(lambda c: c.data.startswith("date_"))
+async def handle_date_selection(callback: CallbackQuery):
+    data_parts = callback.data.split("_")
+    event_id = int(data_parts[1])
+    date_str = data_parts[2]
+
+    times = get_times_for_event_on_date(event_id, date_str)
+
+    time_buttons = [
+        [InlineKeyboardButton(text=f"\ud83d\udd52 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
+        for t in times
+    ]
+
+    back_button = [
+        [InlineKeyboardButton(text="\u2b05\ufe0f Назад", callback_data=f"prev_0")]
+    ]
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
+
+    await callback.message.edit_text(
+        text=f"\ud83d\udcc5 <b>{date_str}</b>\n\n\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0440\u0435\u043c\u044f, \u0447\u0442\u043e\u0431\u044b \u0437\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f \u043d\u0430 \u043c\u0430\u0441\u0442\u0435\u0440-\u043a\u043b\u0430\u0441\u0441:",
+        parse_mode="HTML",
+        reply_markup=keyboard
+    )
+    await callback.answer()
+
+
+
+
+@router.callback_query(lambda c: c.data.startswith("time_"))
+async def handle_time_selection(callback: CallbackQuery):
+    _, event_id, date_str, time_str = callback.data.split("_")
+
+    # Сюда можно добавить запись в таблицу регистраций, если нужна
+    await callback.message.edit_text(
+        text=f"✅ Вы записаны на мастер-класс!\n📅 <b>{date_str}</b> в <b>{time_str}</b>",
+        parse_mode="HTML"
+    )
     await callback.answer()
 
 
