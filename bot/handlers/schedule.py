@@ -101,7 +101,7 @@ async def handle_navigation(callback: CallbackQuery):
     #events = get_all_events(today)
 
     templates = get_all_templates()
-    total = len(events)
+    total = len(templates)
 
     # Текущий индекс получаем из callback_data
     data = callback.data
