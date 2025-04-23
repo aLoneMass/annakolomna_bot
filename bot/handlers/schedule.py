@@ -52,7 +52,7 @@ async def handle_navigation(callback: CallbackQuery):
         print(f"[DEBUG handle_navigation] caption:\n{caption}")
 
         media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
-
+        print(f"[DEBUG handle_navigation] media прошла, вызовем возврат кнопок и медиа пользователю")
         await callback.message.edit_media(media=media, reply_markup=keyboard)
 
     await callback.answer()
