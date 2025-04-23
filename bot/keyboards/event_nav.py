@@ -1,5 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from bot.handlers.schedule import get_dates_for_event
+import sqlite3
+from config import DB_PATH
+#from bot.handlers.schedule import get_dates_for_event
 
 
 def get_event_navigation_keyboard(index: int, total: int, event_id: int) -> InlineKeyboardMarkup:
@@ -32,3 +34,13 @@ def get_event_navigation_keyboard(index: int, total: int, event_id: int) -> Inli
 
     return InlineKeyboardMarkup(inline_keyboard=date_buttons + [buttons] if buttons else date_buttons)
 
+def get_dates_for_event(event_id: int):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT DISTINCT date FROM events
+            WHERE template_id = ?
+            ORDER BY date;
+        """, (event_id,))
+        rows = cursor.fetchall()
+        return [r[0] for r in rows]

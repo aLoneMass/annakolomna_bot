@@ -7,7 +7,7 @@ from bot.services.events import get_all_events
 from bot.keyboards.event_nav import get_event_navigation_keyboard
 from aiogram.types import FSInputFile
 from aiogram.types import InputMediaPhoto
-import sqlite3
+
 from config import DB_PATH
 
 
@@ -139,13 +139,4 @@ async def handle_close(callback: CallbackQuery):
 
 
 
-def get_dates_for_event(event_id: int):
-    with sqlite3.connect(DB_PATH) as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT DISTINCT date FROM events
-            WHERE template_id = ?
-            ORDER BY date;
-        """, (event_id,))
-        rows = cursor.fetchall()
-        return [r[0] for r in rows]
+
