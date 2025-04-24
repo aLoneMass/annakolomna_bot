@@ -3,7 +3,7 @@ from aiogram import types
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from datetime import date
-from bot.services.events import get_all_events, get_all_templates
+from bot.services.events import get_all_templates
 from bot.keyboards.event_nav import get_event_navigation_keyboard, handle_date_selection
 from aiogram.types import FSInputFile
 from aiogram.types import InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
@@ -14,7 +14,7 @@ from config import DB_PATH
 
 
 router = Router()
-PHOTO_DIR = "data/event_photos"
+#PHOTO_DIR = "data/event_photos"
 
 #Переписал процедуру "показать расписание"
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
@@ -52,7 +52,6 @@ async def handle_navigation(callback: CallbackQuery):
         print(f"[DEBUG handle_navigation] caption:\n{caption}")
 
         media = InputMediaPhoto(media=photo_uniq, caption=caption, parse_mode="HTML")
-        print(f"[DEBUG handle_navigation] media прошла, вызовем возврат кнопок и медиа пользователю")
         await callback.message.edit_media(media=media, reply_markup=keyboard)
 
     await callback.answer()

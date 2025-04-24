@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from config import BOT_TOKEN
 from bot.handlers import start, schedule, registration, admin
+from bot.keyboards import event_nav
 
 
 
@@ -21,6 +22,7 @@ async def main():
     # Подключаем хендлеры
     dp.include_router(start.router)
     dp.include_router(schedule.router)
+    dp.include_router(event_nav.router)
     dp.include_router(registration.router)
     dp.include_router(admin.router)
 
