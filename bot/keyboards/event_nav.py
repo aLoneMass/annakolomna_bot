@@ -116,14 +116,36 @@ async def handle_date_selection(callback: CallbackQuery):
     ]
 
     back_button = [
-        InlineKeyboardButton(text="◀️ Назад", callback_data=f"event_{event_id}")
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data=f"prev_0")]
     ]
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + [back_button])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
 
-    await callback.message.edit_text(
-        text=f"📅 <b>{date_str}</b>\n\nВыберите время, чтобы записаться на мастер-класс:",
+    await callback.message.edit_caption(
+        text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:",
         parse_mode="HTML",
         reply_markup=keyboard
     )
+    
     await callback.answer()
+
+
+@router.callback_query(lambda c: c.data.startswith("time_"))
+async def handle_time_selection(callback: CallbackQuery):
+    _, event_id, date_str, time_str = callback.data.split("_")
+
+    # Сюда можно добавить запись в таблицу регистраций, если нужна
+    await callback.message.edit_caption(
+        text=f"✅ Вы записаны на мастер-класс!\n📅 <b>{date_str}</b> в <b>{time_str}</b>",
+        parse_mode="HTML"
+    )
+    await callback.answer()
+
+
+
+@router.callback_query(lambda c: c.data == "close")
+async def handle_close(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.answer()
+
+
