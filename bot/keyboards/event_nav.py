@@ -138,7 +138,11 @@ async def handle_date_selection(callback: CallbackQuery):
 async def handle_time_selection(callback: CallbackQuery):
     _, event_id, date_str, time_str = callback.data.split("_")
 
-    keyboard = InlineKeyboardMarkup([InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard = [
+            [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
+        ]
+    )
     # Сюда можно добавить запись в таблицу регистраций, если нужна
     await callback.message.edit_caption(
         caption=f"✅ Вы записаны на мастер-класс!\n\n📅 <b>{date_str}</b> в <b>{time_str}</b>",
