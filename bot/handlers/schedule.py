@@ -42,8 +42,8 @@ async def handle_navigation(callback: CallbackQuery):
         caption = (
             f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
-            #f"📍 <a href=\"{location}\">Адрес тут</a>\n"
-            #f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
+            f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+            f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
 
         keyboard = get_event_navigation_keyboard(new_index, total, template_id)
@@ -79,11 +79,12 @@ async def handle_date_selection(callback: CallbackQuery):
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
 
-    await callback.message.edit_text(
+    await callback.message.edit_caption(
         text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:",
         parse_mode="HTML",
         reply_markup=keyboard
     )
+    
     await callback.answer()
 
 
