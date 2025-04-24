@@ -104,6 +104,7 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 
 @router.callback_query(lambda c: c.data.startswith("date_"))
 async def handle_date_selection(callback: CallbackQuery):
+    print(f"[DEBUG handle_date_selection] выведем список дат под масте-классом")
     data_parts = callback.data.split("_")
     event_id = int(data_parts[1])
     date_str = data_parts[2]
@@ -121,11 +122,14 @@ async def handle_date_selection(callback: CallbackQuery):
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
 
-    await callback.message.edit_caption(
-        text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:",
-        parse_mode="HTML",
-        reply_markup=keyboard
-    )
+    # caption = (
+    #     text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:"
+    # )
+
+    #media = InputMediaPhoto(caption=caption, parse_mode="HTML")
+
+    #await callback.message.edit_media(media=media, reply_markup=keyboard)
+    await callback.message.edit_reply_markup(reply_markup=keyboard)
     
     await callback.answer()
 
@@ -134,12 +138,15 @@ async def handle_date_selection(callback: CallbackQuery):
 async def handle_time_selection(callback: CallbackQuery):
     _, event_id, date_str, time_str = callback.data.split("_")
 
+    keyboard = InlineKeyboardMarkup([InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
     # Сюда можно добавить запись в таблицу регистраций, если нужна
     await callback.message.edit_caption(
-        text=f"✅ Вы записаны на мастер-класс!\n📅 <b>{date_str}</b> в <b>{time_str}</b>",
-        parse_mode="HTML"
+        caption=f"✅ Вы записаны на мастер-класс!\n\n📅 <b>{date_str}</b> в <b>{time_str}</b>",
+        parse_mode="HTML",
+        reply_markup=keyboard
     )
-    await callback.answer()
+
+    await callback.answer("Запись подтверждена ✅")
 
 
 
