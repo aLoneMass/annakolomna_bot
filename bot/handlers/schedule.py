@@ -42,8 +42,8 @@ async def handle_navigation(callback: CallbackQuery):
         caption = (
             f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
-            f"📍 <a href=\"{location}\">Адрес тут</a>\n"
-            f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
+            #f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+            #f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
 
         keyboard = get_event_navigation_keyboard(new_index, total, template_id)
