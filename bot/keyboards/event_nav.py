@@ -3,6 +3,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedia
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from config import DB_PATH
+from bot.handlers.registration import handle_signup_event
+from aiogram.fsm.context import FSMContext
+
 #from bot.handlers.schedule import get_dates_for_event
 
 
@@ -135,7 +138,7 @@ async def handle_date_selection(callback: CallbackQuery):
 
 
 @router.callback_query(lambda c: c.data.startswith("time_"))
-async def handle_time_selection(callback: CallbackQuery):
+async def handle_time_selection(callback: CallbackQuery, state: FSMContext):
     _, event_id, date_str, time_str = callback.data.split("_")
 
     keyboard = InlineKeyboardMarkup(
@@ -151,7 +154,8 @@ async def handle_time_selection(callback: CallbackQuery):
     )
 
     await callback.answer("Запись подтверждена ✅")
-
+    callback.data = f"signup_event:{event_id}"
+    await handle_signup_event(callback, state)
 
 
 @router.callback_query(lambda c: c.data == "close")
