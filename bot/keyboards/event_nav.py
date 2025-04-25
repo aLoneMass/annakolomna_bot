@@ -80,7 +80,7 @@ async def handle_show_dates(callback: CallbackQuery):
         for d in dates
     ]
     date_buttons.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=f"prev_0")])
-    
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=date_buttons)
 
     await callback.message.edit_reply_markup(reply_markup=keyboard)
@@ -91,14 +91,15 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 
     #dates = get_dates_for_event(event_id)
     #record_button = record_event_navigation_button(event_id)
-    print(F"[DEBUG get_event_navigation_keyboard] dates:\n {dates}")
+    #print(F"[DEBUG get_event_navigation_keyboard] dates:\n {dates}")
 
-    date_buttons = [
-        [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
-        for d in dates
-    ]
+    # date_buttons = [
+    #     [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
+    #     for d in dates
+    # ]
 
     #
+    date_buttons = []
     nav_buttons = []
     if total_events - 1 == 0:
         print('мероприятие одно, кнопки навигации не добавляем')
