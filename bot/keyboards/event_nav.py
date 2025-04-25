@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from config import DB_PATH
 from bot.handlers.registration import handle_signup_event
 from aiogram.fsm.context import FSMContext
+from types import SimpleNamespace
 
 #from bot.handlers.schedule import get_dates_for_event
 
@@ -153,14 +154,25 @@ async def handle_time_selection(callback: CallbackQuery, state: FSMContext):
         reply_markup=keyboard
     )
 
+    fake_callback = SimpleNamespace(
+        from_user=callback.from_user,
+        message=callback.message,
+        data=f"signup_event:{event_id}"
+    )   
+
     await callback.answer("Запись подтверждена ✅")
     callback.data = f"signup_event:{event_id}"
-    await handle_signup_event(callback, state)
+    #await handle_signup_event(callback, state)
+    await handle_signup_event(fake_callback, state)
 
 
 @router.callback_query(lambda c: c.data == "close")
 async def handle_close(callback: CallbackQuery):
     await callback.message.delete()
     await callback.answer()
+
+
+
+
 
 
