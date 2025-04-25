@@ -70,9 +70,27 @@ def get_times_for_event_on_date(event_id: int, date_str: str):
         rows = cursor.fetchall()
         return [r[0] for r in rows]
 
+@router.callback_query(lambda c: c.data.startswith("show_dates_"))
+async def handle_show_dates(callback: CallbackQuery):
+    event_id = int(callback.data.split("_")[2])
+    dates = get_dates_for_event(event_id)
+
+    date_buttons = [
+        [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
+        for d in dates
+    ]
+    date_buttons.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=f"prev_0")])
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=date_buttons)
+
+    await callback.message.edit_reply_markup(reply_markup=keyboard)
+    await callback.answer()
+
 
 def get_event_navigation_keyboard(event_index: int, total_events: int, event_id: int):
-    dates = get_dates_for_event(event_id)
+
+    #dates = get_dates_for_event(event_id)
+    #record_button = record_event_navigation_button(event_id)
     print(F"[DEBUG get_event_navigation_keyboard] dates:\n {dates}")
 
     date_buttons = [
@@ -100,7 +118,8 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 
     if nav_buttons:
         date_buttons.append(nav_buttons)
-
+    
+    date_buttons.append([InlineKeyboardButton(text="📝 Записаться", callback_data=f"show_dates_{event_id}")])
     date_buttons.append([InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
     print(F"[DEBUG get_event_navigation_keyboard] Сформировали кнопки и вернем их. date_buttons: {date_buttons}")
     return InlineKeyboardMarkup(inline_keyboard=date_buttons)
