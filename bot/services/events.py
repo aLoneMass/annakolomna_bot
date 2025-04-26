@@ -13,12 +13,20 @@ def get_all_events(query: str | int):
         if isinstance(query, int):
             # Если это целое число — ищем по event_id
             cur.execute("""
-                SELECT
-                    et.id, et.title, et.description, e.date, e.time, et.price,
-                    et.qr_path, et.payment_link, et.location, et.photo_path
+                SELECT 
+                    e.id AS event_id,
+                    et.title,
+                    et.description,
+                    et.location,
+                    et.photo_path,
+                    et.qr_path,
+                    et.payment_link,
+                    et.price,
+                    e.date,
+                    e.time
                 FROM events e
                 JOIN event_templates et ON e.template_id = et.id
-                WHERE id = ?
+                WHERE e.id = ?
             """, (query,))
         else:
             # Иначе — это дата в формате 'YYYY-MM-DD'

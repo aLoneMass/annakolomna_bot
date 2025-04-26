@@ -159,7 +159,8 @@ def get_or_create_child(user_id, child_name, comment, birth_date):
         cur.execute("""
             SELECT id FROM children
             WHERE user_id = ? AND child_name = ?
-        """, (user_id, child_name))
+        """, (user_id, child_name)
+        )
         row = cur.fetchone()
         if row:
             return row[0]
@@ -214,21 +215,53 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     user = message.from_user
     
     user_id = get_or_create_user(user.id, user.username, user.full_name)
+    await state.update_data(user_id=user_id)            # <-- добавь это, важно!
     print(f"[DEBUG birth_date] данные в user_id: {user_id}")
     child_id = get_or_create_child(user_id, data['child_name'], data['comment'], data['birth_date'])
+    await state.update_data(child_id=child_id)          # <-- добавь это, важно!
     print(f"[DEBUG birth_date] данные в child_id: {child_id}")
 
     
-    #event = get_all_events(data['event_id'])
+    #Тут возможны два варианта, либо вызов процедуры либо выполнение запроса в теле функции.
+
     event = get_all_events(data['event_id'])[0]
-    event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
+
+    # with sqlite3.connect(DB_PATH) as conn:
+    #     cur = conn.cursor()
+    #     cur.execute("""
+    #         SELECT 
+    #             e.id AS event_id,
+    #             et.title,
+    #             et.description,
+    #             et.location,
+    #             et.photo_path,
+    #             et.qr_path,
+    #             et.payment_link,
+    #             et.price,
+    #             e.date,
+    #             e.time
+    #         FROM events e
+    #         JOIN event_templates et ON e.template_id = et.id
+    #         WHERE e.id = ?
+    #     """, (data['event_id'],))
+    #     event = cur.fetchone()
+    # if not event:
+    #     await message.answer("[DEBUG handle_child_birth_date] Ошибка: мероприятие не найдено.")
+    # return
+    
+    (event_id, title, description, location, photo_path, qr_path, payment_link, price, event_date, event_time) = event
+    #event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
     print(f"[DEBUG birth_date] данные в event: {event}")
+
+    
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO registrations (user_id, event_id, child_id) VALUES (?, ?, ?)",
-                    (user_id, event_id, child_id))
+        cur.execute("""
+            INSERT INTO registrations (user_id, child_id, event_id) VALUES (?, ?, ?)
+        """, (user_id, child_id, event_id))
         registration_id = cur.lastrowid
+    await state.update_data(registration_id=registration_id)    # <-- сохраняем registration_id в состояние
 
     caption = (
         f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n"
@@ -245,7 +278,19 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 
                                                                                                             #добавить к опату
     await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
-    await state.update_data(user_id=user_id, registration_id=registration_id)
+    #await state.update_data(user_id=user_id, registration_id=registration_id)
+    await state.update_data(
+        event_id=event_id,
+        title=title,
+        description=description,
+        location=location,
+        photo_path=photo_path,
+        qr_path=qr_path,
+        payment_link=payment_link,
+        price=price,
+        event_date=event_date,
+        event_time=event_time
+    )
     await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
 
 # -- Оплата наличными --
@@ -259,7 +304,9 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)""",
-                    (data['registration_id'], data['user_id'], "наличными", "CASH"))
+            (data['registration_id'], data['user_id'], "наличными", "CASH"))
+        
+    await state.update_data(payment_type="наличными")  # для наличных
 
 
     #вызовем функцию уведомления администратора и передадим данные
@@ -310,7 +357,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
         cur = conn.cursor()
         cur.execute("INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)",
                     (data['registration_id'], data['user_id'], "онлайн", full_path))
-        
+    await state.update_data(payment_type="онлайн", check_path=full_path)    
 
     #вызовем функцию уведомления администратора и передадим данные
     data = await state.get_data()
