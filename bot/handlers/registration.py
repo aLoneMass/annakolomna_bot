@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message, FSInputFile, InlineKeyboardMar
 from aiogram.utils.markdown import hbold
 from aiogram.fsm.context import FSMContext
 from bot.states.registration import RegistrationState
-from bot.services.events import get_all_events
+from bot.services.events import get_all_events, get_event_by_id
 import os
 import re
 import sqlite3
@@ -225,7 +225,10 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     
     #Тут возможны два варианта, либо вызов процедуры либо выполнение запроса в теле функции.
 
-    event = get_all_events(event_id)
+    event = get_event_by_id(data['event_id'])
+    if not event:
+        await message.answer("Ошибка: мероприятие не найдено.")
+    
     print(f"[DEBUG birth_date] event: {event}")
     #event = get_all_events(data['event_id'])[0]
 

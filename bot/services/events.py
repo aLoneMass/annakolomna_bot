@@ -56,3 +56,26 @@ def get_all_templates():
             ORDER BY id;
         """)
         return cursor.fetchall()
+
+
+
+def get_event_by_id(event_id: int):
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                e.id AS event_id,
+                et.title,
+                et.description,
+                et.location,
+                et.photo_path,
+                et.qr_path,
+                et.payment_link,
+                et.price,
+                e.date,
+                e.time
+            FROM events e
+            JOIN event_templates et ON e.template_id = et.id
+            WHERE e.id = ?
+        """, (event_id,))
+        return cur.fetchone()
