@@ -225,7 +225,9 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     
     #Тут возможны два варианта, либо вызов процедуры либо выполнение запроса в теле функции.
 
-    event = get_all_events(data['event_id'])[0]
+    event = get_all_events(event_id)
+    print(f"[DEBUG birth_date] event: {event}")
+    #event = get_all_events(data['event_id'])[0]
 
     # with sqlite3.connect(DB_PATH) as conn:
     #     cur = conn.cursor()
