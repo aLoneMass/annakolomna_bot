@@ -174,17 +174,17 @@ async def handle_time_selection(callback: CallbackQuery, state: FSMContext):
         reply_markup=keyboard
     )
 
-    fake_callback = SimpleNamespace(
-        from_user=callback.from_user,
-        message=callback.message,
-        data=f"signup_event:{event_id}"
-    )   
+    # fake_callback = SimpleNamespace(
+    #     from_user=callback.from_user,
+    #     message=callback.message,
+    #     data=f"signup_event:{event_id}"
+    # )   
 
     await callback.answer("Запись подтверждена ✅")
-    #callback.data = f"signup_event:{event_id}"
-    #await handle_signup_event(callback, state)
+    callback.data = f"signup_event:{event_id}"
+    await handle_signup_event(callback, state)
     #await handle_signup_event(fake_callback, state)
-    await handle_signup_event(callback.from_user.id, event_id, state)
+    #await handle_signup_event(callback.from_user.id, event_id, state)
 
 
 

@@ -17,12 +17,12 @@ router = Router()
 
 #Функция вызывается при нажатии на кнопку "Записаться"
 @router.callback_query(F.data.startswith("signup_event:"))
-async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
-#async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В переменной callback будет содержаться значение event_id отправленное с нажатием кнопки "записаться"
-    print (f'[DEBUG signup] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}')
-    #event_id = int(callback.data.split(":")[1])                             #Вот тут вытаскивается это значение из коллбек.дата в эвент_ид
-    #user_id = callback.from_user.id
-    #print (f'[DEBUG signup]   callback.from_user.id: {callback.from_user}')
+#async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
+async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В переменной callback будет содержаться значение event_id отправленное с нажатием кнопки "записаться"
+    print (f'[DEBUG signup] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith} and bcallback: {callback.data}')
+    event_id = int(callback.data.split(":")[1])                             #Вот тут вытаскивается это значение из коллбек.дата в эвент_ид
+    user_id = callback.from_user.id
+    print (f'[DEBUG signup]   callback.from_user.id: {callback.from_user}')
     # Сохраняем event_id в state
     await state.update_data(event_id=event_id)
 
@@ -50,14 +50,14 @@ async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
                     # [InlineKeyboardButton(text="🔙 Назад", callback_data="cancel_registration")]
                     [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
                 ])
-                await Message.message.answer(                
+                await callback.message.answer(                
                     "Вы уже записаны на это мероприятие и выбрали оплату наличными.\n"
                     "Хотите оплатить онлайн?",
                     reply_markup=keyboard
                 )
             elif payment_type == "оплачено":
                 print(f'[DEBUG signup] провалилсь в else "оплачено"')
-                await Message.message.answer("✅ Вы уже записаны на это мероприятие.")
+                await callback.message.answer("✅ Вы уже записаны на это мероприятие.")
             else:
                 print(f'[DEBUG signup] провалилсь в if "наличными" ')
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -65,12 +65,12 @@ async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
                     [InlineKeyboardButton(text="💶 Оплачу на месте", callback_data="pay_cash")]
                     [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
                 ])
-                await Message.message.answer(                
+                await callback.message.answer(                
                     "Вы уже записаны на это мероприятие, но оплата не произведена.\n"
                     "Хотите оплатить онлайн или наличными?",
                     reply_markup=keyboard
                 )
-            await Message.answer()
+            await callback.answer()
             return
 
     # Проверка: есть ли сохранённый ребёнок
@@ -98,7 +98,7 @@ async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
             [InlineKeyboardButton(text="✏️ Ввести заново", callback_data="new_child_info")]
         ])
 
-        await Message.message.answer(
+        await callback.message.answer(
             f"👶 Найдены данные ребёнка:\n"
             f"Имя: {hbold(child_name)}\n"
             f"Комментарий: {comment or '–'}\n"
@@ -106,18 +106,18 @@ async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
             f"Использовать эти данные?",
             reply_markup=keyboard
         )
-        await Message.answer()
+        await callback.answer()
         return
     
     
 
     # Если данных о ребёнке нет — переходим к ручному вводу
     
-    await Message.message.answer("Введите имя ребёнка:")
+    await callback.message.answer("Введите имя ребёнка:")
     
     await state.set_state(RegistrationState.entering_child_name)
 
-    await Message.answer()
+    await callback.answer()
 
 
 #Если пользователь подтвердил использование имеющихся данных
