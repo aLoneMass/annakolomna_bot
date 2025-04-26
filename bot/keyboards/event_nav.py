@@ -181,7 +181,7 @@ async def handle_time_selection(callback: CallbackQuery, state: FSMContext):
     )   
 
     await callback.answer("Запись подтверждена ✅")
-    callback.data = f"signup_event:{event_id}"
+    #callback.data = f"signup_event:{event_id}"
     #await handle_signup_event(callback, state)
     await handle_signup_event(fake_callback, state)
 
