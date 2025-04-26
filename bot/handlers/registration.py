@@ -17,7 +17,8 @@ router = Router()
 
 #Функция вызывается при нажатии на кнопку "Записаться"
 @router.callback_query(F.data.startswith("signup_event:"))
-async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В переменной callback будет содержаться значение event_id отправленное с нажатием кнопки "записаться"
+async def handle_signup_event(user_id: int, event_id: int, state: FSMContext):
+#async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В переменной callback будет содержаться значение event_id отправленное с нажатием кнопки "записаться"
     print (f'[DEBUG signup] Пользоваель нажал записаться. вызвано событие signup_event: {F.data.startswith}, и callback.data: {callback.data}')
     event_id = int(callback.data.split(":")[1])                             #Вот тут вытаскивается это значение из коллбек.дата в эвент_ид
     user_id = callback.from_user.id
