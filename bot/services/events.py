@@ -26,8 +26,8 @@ def get_all_events(query: str | int):
                     e.time
                 FROM events e
                 JOIN event_templates et ON e.template_id = et.id
-                WHERE e.id = ?
-            """, (query,))
+                WHERE event_id = ?
+            """, (query,))  #WHERE e.id = ?
         else:
             # Иначе — это дата в формате 'YYYY-MM-DD'
             cur.execute("""
