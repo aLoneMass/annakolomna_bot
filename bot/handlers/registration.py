@@ -31,11 +31,10 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
         cur = conn.cursor()
         cur.execute("""
             SELECT p.payment_type
-            FROM registrations r
-            JOIN users u ON r.user_id = u.id
-            LEFT JOIN payments p ON r.id = p.registration_id
+            FROM payments p
+            JOIN registrations r ON p.registration_id = r.id
+            JOIN users u ON p.user_id = u.id
             WHERE u.telegram_id = ? AND r.event_id = ?;
-
         """, (user_id, event_id))
         reg = cur.fetchone()
         payment_type = reg[0] if reg else None
