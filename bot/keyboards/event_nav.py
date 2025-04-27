@@ -139,8 +139,8 @@ async def handle_date_selection(callback: CallbackQuery):
     times = get_times_for_event_on_date(template_id, date_str)
     print(f"[DEBUG handle_date_selection] times:{times}")
     for t in times:
-        event_id = get_event_id(template_id, date_str, t)
-        [InlineKeyboardButton(text=f"{t}", callback_data=f"signup_event:{event_id}")]
+        event_id = get_event_id(template_id, date_str, t)   #За счет t -> event_id каждый раз разный
+        time_buttons =+ [InlineKeyboardButton(text=f"{t}", callback_data=f"signup_event:{event_id}")]
 
     # time_buttons = [
     #     #[InlineKeyboardButton(text=f"🕑 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
