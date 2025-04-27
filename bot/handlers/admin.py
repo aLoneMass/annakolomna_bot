@@ -239,22 +239,23 @@ async def show_all_registrations(callback: CallbackQuery):
         # Достаем всю нужную информацию
         cur.execute("""
             SELECT
-                e.title,
-                e.date,
-                e.time,
-                u.full_name,
-                u.username,
-                c.child_name,
-                c.birth_date,
-                c.comment,
-                p.payment_type
+                et.title,           -- Название мастер-класса
+                e.date,             -- Дата
+                e.time,             -- Время
+                u.full_name,        -- Имя родителя
+                u.username,         -- Username родителя
+                c.child_name,       -- Имя ребенка
+                c.birth_date,       -- День рождения
+                c.comment,          -- Комментарий (аллергии)
+                p.payment_type      -- Тип оплаты
             FROM registrations r
             JOIN events e ON r.event_id = e.id
+            JOIN event_templates et ON e.template_id = et.id
             JOIN users u ON r.user_id = u.id
             JOIN children c ON r.child_id = c.id
             LEFT JOIN payments p ON r.id = p.registration_id
             WHERE e.date >= ?
-            ORDER BY e.date, e.time, e.title
+            ORDER BY e.date, e.time, et.title
         """, (today,))
         
         rows = cur.fetchall()
