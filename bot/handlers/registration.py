@@ -286,6 +286,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     user = callback.from_user
     print(f"[DEBUG pay_cash] user: {user}")
+    print(f"[DEBUG pay_cash] data: {data}")
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
