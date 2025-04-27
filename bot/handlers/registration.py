@@ -369,9 +369,11 @@ async def handle_payment_check(message: Message, state: FSMContext):
         child_name=data["child_name"],
         birth_date=data["birth_date"],
         comment=data["comment"],
-        event_title=data["event_title"],
+        event_title=data["title"],
         event_date=data["event_date"],
         event_time=data["event_time"],
+        payment_type=data["payment_type"],
+        check_path=data["check_path"]
     )
 
 
@@ -391,7 +393,9 @@ async def notify_admins_about_registration(
     comment: str,
     event_title: str,
     event_date: str,
-    event_time: str
+    event_time: str,
+    payment_type: str | None,
+    check_path: str | None
 ):
     #data = await state.get_data()
     """
@@ -400,13 +404,15 @@ async def notify_admins_about_registration(
     text = (
         f"📢 {hbold('Новая запись!')}\n\n"
         f"👤 Родитель: {parent_name}\n"
-        f"👤 Логин: {username}\n"
+        f"👤 Логин: @{username}\n"
         f"👶 Ребёнок: {child_name}\n"
         f"🎂 День рождения: {birth_date}\n"
         f"📌 Комментарий: {comment or '–'}\n\n"
         f"🎨 Мастер-класс: {event_title}\n"
         f"📅 Дата: {event_date}\n"
         f"🕒 Время: {event_time}"
+        f"🧾 Оплата: {payment_type}"
+        f"🧾 Чек: возможно тут будет прикрепляться чек"
     )
 
     for admin_id in admins:
