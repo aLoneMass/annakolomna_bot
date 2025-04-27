@@ -130,7 +130,9 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 async def handle_date_selection(callback: CallbackQuery):
     print(f"[DEBUG handle_date_selection] выведем список дат под масте-классом")
     data_parts = callback.data.split("_")
+    print(f"[DEBUG handle_date_selection] data_parts:{data_parts}")
     event_id = int(data_parts[1])
+    print(f"[DEBUG handle_date_selection] event_id:{event_id}")
     date_str = data_parts[2]
 
     times = get_times_for_event_on_date(event_id, date_str)
