@@ -360,7 +360,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
     #вызовем функцию уведомления администратора и передадим данные
     data = await state.get_data()
-
+    print(f"[DEBUG handle_payment_check] daata:{data}")
     await notify_admins_about_registration(
         bot=message.bot,
         admins=ADMINS,
