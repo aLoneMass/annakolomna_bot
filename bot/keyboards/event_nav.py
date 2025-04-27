@@ -88,11 +88,11 @@ async def handle_show_dates(callback: CallbackQuery):
     await callback.answer()
 
 
-def get_event_navigation_keyboard(event_index: int, total_events: int, event_id: int):
+def get_event_navigation_keyboard(template_index: int, total_templates: int, template_id: int):
 
     #dates = get_dates_for_event(event_id)
     #record_button = record_event_navigation_button(event_id)
-    print(F"[DEBUG get_event_navigation_keyboard] event_id: {event_id}, event_index: {event_index}, total_events: {total_events}")
+    print(F"[DEBUG get_event_navigation_keyboard] template_id: {template_id}, template_index: {template_index}, total_templates: {total_templates}")
 
     # date_buttons = [
     #     [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
@@ -102,26 +102,26 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
     #
     date_buttons = []
     nav_buttons = []
-    if total_events - 1 == 0:
+    if total_templates - 1 == 0:
         print('мероприятие одно, кнопки навигации не добавляем')
-    elif event_index == 0 and event_index < total_events - 1:
+    elif template_index == 0 and template_index < total_templates - 1:
         nav_buttons = [
-            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}")
+            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{template_index}")
         ]
-    elif 0 < event_index < total_events - 1:
+    elif 0 < template_index < total_templates - 1:
         nav_buttons = [
-            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}"),
-            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{event_index}")
+            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{template_index}"),
+            InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{template_index}")
         ]
-    elif event_index == total_events - 1 and total_events > 0:
+    elif template_index == total_templates - 1 and total_templates > 0:
         nav_buttons = [
-            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{event_index}")
+            InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{template_index}")
         ]
 
     if nav_buttons:
         date_buttons.append(nav_buttons)
     
-    date_buttons.append([InlineKeyboardButton(text="📝 Записаться", callback_data=f"show_dates_{event_id}")])
+    date_buttons.append([InlineKeyboardButton(text="📝 Записаться", callback_data=f"show_dates_{template_id}")])
     date_buttons.append([InlineKeyboardButton(text="❌ Закрыть", callback_data="close")])
     print(F"[DEBUG get_event_navigation_keyboard] Сформировали кнопки и вернем их. date_buttons: {date_buttons}")
     return InlineKeyboardMarkup(inline_keyboard=date_buttons)
