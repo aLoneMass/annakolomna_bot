@@ -9,7 +9,6 @@ class AdminCreateEventState(StatesGroup):
     payment_link = State()
     location = State()
     price = State()
-    
     event_dates = State()
     event_times = State()
     confirm = State()

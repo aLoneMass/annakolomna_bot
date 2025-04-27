@@ -9,7 +9,7 @@ from bot.states.admin import AdminCreateEventState
 import sqlite3, re
 from config import DB_PATH
 from config import ADMINS 
-from datetime import datetime
+from datetime import datetime, date
 
 router = Router()
 
@@ -225,3 +225,68 @@ async def save_event_template(state: FSMContext, message: Message):
 
     await message.answer("✅ Мастер-класс и все мероприятия успешно созданы.")
     await state.clear()
+
+
+#Выведем список всех зарегистрированных пользователей на всех мероприятиях    
+@router.callback_query(F.data == "show_registrations")
+async def show_all_registrations(callback: CallbackQuery):
+    print('[DEBUG show_all_registrations]')
+    today = date.today().isoformat()
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+
+        # Достаем всю нужную информацию
+        cur.execute("""
+            SELECT
+                e.title,
+                e.date,
+                e.time,
+                u.full_name,
+                u.username,
+                c.child_name,
+                c.birth_date,
+                c.comment,
+                p.payment_type
+            FROM registrations r
+            JOIN events e ON r.event_id = e.id
+            JOIN users u ON r.user_id = u.id
+            JOIN children c ON r.child_id = c.id
+            LEFT JOIN payments p ON r.id = p.registration_id
+            WHERE e.date >= ?
+            ORDER BY e.date, e.time, e.title
+        """, (today,))
+        
+        rows = cur.fetchall()
+
+    if not rows:
+        await callback.message.answer("Записей на мастер-классы нет.")
+        await callback.answer()
+        return
+
+    # Группируем данные
+    output = ""
+    last_event = None
+    last_datetime = None
+
+    for row in rows:
+        title, event_date, event_time, full_name, username, child_name, birth_date, comment, payment_type = row
+        event_header = f"{title}\n📅 {event_date} ⏰ {event_time}"
+
+        if (title, event_date, event_time) != last_event:
+            if last_event is not None:
+                output += "\n"  # Разделение между мероприятиями
+            output += f"\n<b>{event_header}</b>\n"
+            last_event = (title, event_date, event_time)
+
+        payment_status = payment_type if payment_type else "не оплачено"
+        output += (
+            f"👤 Родитель: {full_name or 'нет имени'} (@{username or 'нет username'})\n"
+            f"👶 Ребёнок: {child_name} (Дата рождения: {birth_date})\n"
+            f"🧴 Аллергии: {comment}\n"
+            f"💵 Оплата: {payment_status}\n\n"
+        )
+
+    await callback.message.answer(output, parse_mode="HTML")
+    await callback.answer()
+
