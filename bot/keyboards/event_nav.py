@@ -47,14 +47,14 @@ router = Router()
 
 #     return InlineKeyboardMarkup(inline_keyboard=date_buttons )
 
-def get_dates_for_event(event_id: int):
+def get_dates_for_event(template_id: int):
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT DISTINCT date FROM events
             WHERE template_id = ?
             ORDER BY date;
-        """, (event_id,))
+        """, (template_id,))
         rows = cursor.fetchall()
         return [r[0] for r in rows]
 
@@ -72,11 +72,12 @@ def get_times_for_event_on_date(event_id: int, date_str: str):
 
 @router.callback_query(lambda c: c.data.startswith("show_dates_"))
 async def handle_show_dates(callback: CallbackQuery):
-    event_id = int(callback.data.split("_")[2])
-    dates = get_dates_for_event(event_id)
-
+    template_id = int(callback.data.split("_")[2])
+    print(f"[DEBUG handle_show_dates] привязать даты к кнопкам. template_id:{template_id}")
+    dates = get_dates_for_event(template_id)
+    print(f"[DEBUG handle_show_dates] привязать даты к кнопкам. dates:{dates}")
     date_buttons = [
-        [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
+        [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{template_id}_{d}")]
         for d in dates
     ]
     date_buttons.append([InlineKeyboardButton(text="⬅️ Назад", callback_data=f"prev_0")])
@@ -91,7 +92,7 @@ def get_event_navigation_keyboard(event_index: int, total_events: int, event_id:
 
     #dates = get_dates_for_event(event_id)
     #record_button = record_event_navigation_button(event_id)
-    #print(F"[DEBUG get_event_navigation_keyboard] dates:\n {dates}")
+    print(F"[DEBUG get_event_navigation_keyboard] event_id: {event_id}, event_index: {event_index}, total_events: {total_events}")
 
     # date_buttons = [
     #     [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
@@ -131,15 +132,15 @@ async def handle_date_selection(callback: CallbackQuery):
     print(f"[DEBUG handle_date_selection] выведем список дат под масте-классом")
     data_parts = callback.data.split("_")
     print(f"[DEBUG handle_date_selection] data_parts:{data_parts}")
-    event_id = int(data_parts[1])
-    print(f"[DEBUG handle_date_selection] event_id:{event_id}")
+    template_id = int(data_parts[1])
+    print(f"[DEBUG handle_date_selection] event_id:{template_id}")
     date_str = data_parts[2]
 
-    times = get_times_for_event_on_date(event_id, date_str)
+    times = get_times_for_event_on_date(template_id, date_str)
 
     time_buttons = [
         #[InlineKeyboardButton(text=f"🕑 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
-        [InlineKeyboardButton(text=f"{t}", callback_data=f"signup_event:{event_id}")]
+        [InlineKeyboardButton(text=f"{t}", callback_data=f"signup_event:{template_id}")]            #тут надо поменять и передавать не template_id, а event_id
         for t in times
     ]
 
