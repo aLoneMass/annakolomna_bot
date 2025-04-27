@@ -195,20 +195,15 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     data = await state.get_data()
     print(f"[DEBUG birth_date] данные в памяти: {data}")
     event_id = data.get("event_id")      # Получаем event_id из состояния
-    # if event_id is None:
-    #     await message.answer("Произошла ошибка: идентификатор мероприятия не найден.")
-    #     return
-    
+
     print(f"[DEBUG birth_date] event_id: {event_id}")
 
     birth_date = message.text.strip()   #В переменную birh_date запомним введеное с клавиатуры значение дня рождения
 
     # Простейшая валидация: дата в формате ДД.ММ.ГГГГ
-    #if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", birth_date):  
     if not re.match(r"^\d{2}\.\d{2}\.\d{2}(\d{2})?$", birth_date):
         await message.answer("❗ Пожалуйста, укажите дату рождения в формате ДД.ММ.ГГГГ.")
         return
-
 
     await state.update_data(birth_date=birth_date)
     data = await state.get_data()
@@ -224,42 +219,14 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
 
     
     #Тут возможны два варианта, либо вызов процедуры либо выполнение запроса в теле функции.
-
     event = get_event_by_id(data['event_id'])
     if not event:
         await message.answer("Ошибка: мероприятие не найдено.")
     
     print(f"[DEBUG birth_date] event: {event}")
-    #event = get_all_events(data['event_id'])[0]
+    (event_id, title, description, location, photo_path, qr_file, payment_link, price, event_date, event_time) = event
 
-    # with sqlite3.connect(DB_PATH) as conn:
-    #     cur = conn.cursor()
-    #     cur.execute("""
-    #         SELECT 
-    #             e.id AS event_id,
-    #             et.title,
-    #             et.description,
-    #             et.location,
-    #             et.photo_path,
-    #             et.qr_path,
-    #             et.payment_link,
-    #             et.price,
-    #             e.date,
-    #             e.time
-    #         FROM events e
-    #         JOIN event_templates et ON e.template_id = et.id
-    #         WHERE e.id = ?
-    #     """, (data['event_id'],))
-    #     event = cur.fetchone()
-    # if not event:
-    #     await message.answer("[DEBUG handle_child_birth_date] Ошибка: мероприятие не найдено.")
-    # return
-    
-    (event_id, title, description, location, photo_path, qr_path, payment_link, price, event_date, event_time) = event
-    #event_id, _, _, event_date, event_time, _, qr_path, payment_link, _, _ = event
     print(f"[DEBUG birth_date] данные в event: {event}")
-
-    
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
@@ -276,15 +243,26 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
         f"После оплаты, пожалуйста, отправьте чек (фото или PDF) в ответ на это сообщение."
     )
 
-    qr_file = FSInputFile(qr_path)
+    #qr_file = FSInputFile(qr_path)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💵 Оплачу наличными", callback_data="pay_cash")]
     ])
 
+    #await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
+    if qr_file:
+        await message.answer_photo(
+            photo=qr_file,
+            caption=caption,
+            parse_mode="HTML",
+            reply_markup=keyboard
+        )
+    else:
+        await message.answer(
+            text=caption,
+            parse_mode="HTML",
+            reply_markup=keyboard
+        )
 
-                                                                                                            #добавить к опату
-    await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
-    #await state.update_data(user_id=user_id, registration_id=registration_id)
     await state.update_data(
         event_id=event_id,
         title=title,
@@ -298,6 +276,8 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
         event_time=event_time
     )
     await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
+
+
 
 # -- Оплата наличными --
 @router.callback_query(F.data == "pay_cash")
