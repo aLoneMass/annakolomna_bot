@@ -38,7 +38,14 @@ async def handle_signup_event(callback: CallbackQuery, state: FSMContext):  #В 
 
         """, (user_id, event_id))
         reg = cur.fetchone()
+        payment_type = reg[0] if reg else None
         print(f'[DEBUG signup] Тип платежа: reg: {reg}')
+        print(f"[DEBUG signup] payment_type: {payment_type}")
+
+        if payment_type is not None:
+            await callback.message.answer("⚠️ Вы уже зарегистрированы и оплатили мастер-класс!")
+            await callback.answer()
+            return
 
         if reg:
             payment_type = reg[0]
@@ -303,7 +310,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     print(f'[DEBUG cash_payment] admin notification. data:{data}')
 
-    check_status 
+    #check_status 
 
     await notify_admins_about_registration(
         bot=callback.message.bot,
