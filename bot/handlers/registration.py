@@ -292,7 +292,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)""",
-            (data['event_id'], user['id'], "наличными", "CASH"))
+            (data['event_id'], user.id, "наличными", "CASH"))
         
     await state.update_data(payment_type="наличными")  # для наличных
 
