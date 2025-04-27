@@ -137,6 +137,8 @@ async def handle_date_selection(callback: CallbackQuery):
     date_str = data_parts[2]
 
     times = get_times_for_event_on_date(template_id, date_str)
+    print(f"[DEBUG handle_date_selection] times:{times}")
+    event_id = get_event_id(template_id, date, time)
 
     time_buttons = [
         #[InlineKeyboardButton(text=f"🕑 {t}", callback_data=f"time_{event_id}_{date_str}_{t}")]
@@ -150,16 +152,25 @@ async def handle_date_selection(callback: CallbackQuery):
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=time_buttons + back_button)
 
-    # caption = (
-    #     text=f"📅 <b>{date_str}</b>\n\n\Выберите время, чтобы записаться на мастер-класс:"
-    # )
-
-    #media = InputMediaPhoto(caption=caption, parse_mode="HTML")
-
-    #await callback.message.edit_media(media=media, reply_markup=keyboard)
     await callback.message.edit_reply_markup(reply_markup=keyboard)
     
     await callback.answer()
+
+
+def get_event_id(template_id: int, date_str: str, time_str: str):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id FROM events
+            WHERE template_id = ? AND date = ? AND time = ?
+            LIMIT 1;
+        """, (template_id, date_str, time_str))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        return None
+
+
 
 
 @router.callback_query(lambda c: c.data.startswith("time_"))
