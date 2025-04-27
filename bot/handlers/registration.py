@@ -237,10 +237,11 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     await state.update_data(registration_id=registration_id)    # <-- сохраняем registration_id в состояние
 
     caption = (
-        f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n"
-        f'<a href="{payment_link}">Оплатить участие</a>\n\n'
+        f"Спасибо! Для завершения записи переведите оплату по ссылке ниже:\n\n"
+        f'<a href="{payment_link}">💳 Оплатить участие</a>\n\n'
+        f'Либо переведите по номеру телефона:<code>+7(964)718-1345</code>\n'
         f"💳 Стоимость: 500₽\n"
-        f"После оплаты, пожалуйста, отправьте чек (фото или PDF) в ответ на это сообщение."
+        f"📎После оплаты, пожалуйста, отправьте чек (фото или PDF) в ответ на это сообщение."
     )
 
     #qr_file = FSInputFile(qr_path)
@@ -249,6 +250,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
     ])
 
     #await message.answer_photo(photo=qr_file, caption=caption, parse_mode="HTML", reply_markup=keyboard)
+    qr_file = ''
     if qr_file:
         await message.answer_photo(
             photo=qr_file,
@@ -301,6 +303,8 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     print(f'[DEBUG cash_payment] admin notification. data:{data}')
 
+    check_status 
+
     await notify_admins_about_registration(
         bot=callback.message.bot,
         admins=ADMINS,
@@ -317,7 +321,7 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Спасибо! Вы записаны. Администратор уведомлен.")
     await callback.answer()
     await state.set_state(RegistrationState.waiting_for_payment_check) #вызов следующего шага
-    await state.clear()
+    #await state.clear()
 
 
 
@@ -366,7 +370,7 @@ async def handle_payment_check(message: Message, state: FSMContext):
 
     await message.answer("✅ Спасибо! Чек получен. До встречи на мастер-классе!")
     await state.set_state(RegistrationState.notify_admins_about_registration) #вызов следующего шага
-    await state.clear()
+    #await state.clear()
     
 
 #Отправка уведомлений администраторам
