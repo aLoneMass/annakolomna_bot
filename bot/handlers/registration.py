@@ -269,7 +269,7 @@ async def handle_child_birth_date(message: Message, state: FSMContext):
         description=description,
         location=location,
         photo_path=photo_path,
-        qr_path=qr_path,
+        qr_path=qr_file,
         payment_link=payment_link,
         price=price,
         event_date=event_date,
@@ -285,13 +285,14 @@ async def handle_cash_payment(callback: CallbackQuery, state: FSMContext):
     print(f"[DEBUG pay_cash] Оплата наличными")
     data = await state.get_data()
     user = callback.from_user
+    
     print(f"[DEBUG pay_cash] user: {user}")
     print(f"[DEBUG pay_cash] data: {data}")
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""INSERT INTO payments (registration_id, user_id, payment_type, check_path) VALUES (?, ?, ?, ?)""",
-            (data['registration_id'], data['user_id'], "наличными", "CASH"))
+            (data['event_id'], user['id'], "наличными", "CASH"))
         
     await state.update_data(payment_type="наличными")  # для наличных
 
