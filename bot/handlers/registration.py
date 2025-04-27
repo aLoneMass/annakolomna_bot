@@ -410,8 +410,8 @@ async def notify_admins_about_registration(
         f"📌 Комментарий: {comment or '–'}\n\n"
         f"🎨 Мастер-класс: {event_title}\n"
         f"📅 Дата: {event_date}\n"
-        f"🕒 Время: {event_time}"
-        f"🧾 Оплата: {payment_type}"
+        f"🕒 Время: {event_time}\n"
+        f"🧾 Оплата: {payment_type}\n"
         f"🧾 Чек: возможно тут будет прикрепляться чек"
     )
 
