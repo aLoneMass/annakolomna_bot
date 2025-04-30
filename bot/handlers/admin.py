@@ -12,6 +12,7 @@ from config import ADMINS
 from datetime import datetime, date
 
 router = Router()
+MAX_MESSAGE_LENGTH = 4000  # запас, чтобы не упереться в лимит
 
 @router.message(Command("admin"))   #проверим является ли пользователь - админом и выведем ему админ меню.
 async def admin_menu(message: Message):
@@ -272,13 +273,23 @@ async def show_all_registrations(callback: CallbackQuery):
 
     for row in rows:
         title, event_date, event_time, full_name, username, child_name, birth_date, comment, payment_type = row
-        event_header = f"{title}\n📅 {event_date} ⏰ {event_time}"
+        #event_header = f"{title}\n📅 {event_date} ⏰ {event_time}"
+        event_key = (title, event_date, event_time)
 
-        if (title, event_date, event_time) != last_event:
+        # if (title, event_date, event_time) != last_event:
+        #     if last_event is not None:
+        #         output += "\n"  # Разделение между мероприятиями
+        #     output += f"\n<b>{event_header}</b>\n"
+        #     last_event = (title, event_date, event_time)
+
+        if event_key != last_event:
             if last_event is not None:
-                output += "\n"  # Разделение между мероприятиями
-            output += f"\n<b>{event_header}</b>\n"
-            last_event = (title, event_date, event_time)
+                output += "\n" + ("—" * 40) + "\n\n"
+            output += (
+                f"🎨 <b>{title}</b>\n"
+                f"📅 <b>Дата:</b> {event_date}   ⏰ <b>Время:</b> {event_time}\n\n"
+            )
+            last_event = event_key
 
         payment_status = payment_type if payment_type else "не оплачено"
         output += (
@@ -287,7 +298,22 @@ async def show_all_registrations(callback: CallbackQuery):
             f"🧴 Аллергии: {comment}\n"
             f"💵 Оплата: {payment_status}\n\n"
         )
-
-    await callback.message.answer(output, parse_mode="HTML")
+    for part in split_message(output.strip()):
+        await callback.message.answer(part, parse_mode="HTML")
+    #await callback.message.answer(output, parse_mode="HTML")
     await callback.answer()
 
+
+#Функция деления сообщения на несколько до 4к символов.
+def split_message(text: str, max_length=MAX_MESSAGE_LENGTH) -> list[str]:
+    """Разбивает длинный текст на части по max_length, стараясь делить по \n\n"""
+    parts = []
+    while len(text) > max_length:
+        split_index = text.rfind("\n\n", 0, max_length)
+        if split_index == -1:
+            split_index = max_length
+        parts.append(text[:split_index].strip())
+        text = text[split_index:].strip()
+    if text:
+        parts.append(text)
+    return parts
