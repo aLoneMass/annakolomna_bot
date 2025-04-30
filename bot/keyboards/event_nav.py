@@ -12,41 +12,6 @@ from types import SimpleNamespace
 
 router = Router()
 
-# def get_event_navigation_keyboard(index: int, total: int, event_id: int) -> InlineKeyboardMarkup:
-
-#     dates = get_dates_for_event(event_id)
-#     print(f"[DEBUG get_event_navigation_keyboard] dates:{dates}")
-
-#     date_buttons = [
-#         [InlineKeyboardButton(text=f"📅 {d}", callback_data=f"date_{event_id}_{d}")]
-#         for d in dates
-#     ]
-#     print(f"[DEBUG get_event_navigation_keyboard] date_buttons:{date_buttons}")
-#     buttons = []
-#     nav_row = []
-#     if total-1 == 0:
-#         print('мероприятие одно, кнопки навигации не добавляем')
-#     elif (index == 0) and (index < total - 1):
-#         nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{index}"))
-#     elif (index > 0) and (index < total-1):
-#         nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{index}"))
-#         nav_row.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"next_{index}"))
-#     elif (index == total-1) and (total > 0):
-#         nav_row.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"prev_{index}"))
-#     buttons.append(nav_row)
-
-#     # buttons.append([
-#     #     InlineKeyboardButton(text="✅ Записаться", callback_data=f"signup_event:{event_id}")
-#     # ])
-#     buttons.append([
-#         InlineKeyboardButton(text="❌ Закрыть", callback_data="close")
-#     ])
-
-#     if buttons:
-#         date_buttons.append(buttons)
-
-#     return InlineKeyboardMarkup(inline_keyboard=date_buttons )
-
 def get_dates_for_event(template_id: int):
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
@@ -192,12 +157,6 @@ async def handle_time_selection(callback: CallbackQuery, state: FSMContext):
         reply_markup=keyboard
     )
 
-    # fake_callback = SimpleNamespace(
-    #     from_user=callback.from_user,
-    #     message=callback.message,
-    #     data=f"signup_event:{event_id}"
-    # )   
-
     await callback.answer("Запись подтверждена ✅")
     #callback.data = f"signup_event:{event_id}"
     #await handle_signup_event(callback, state)
@@ -212,7 +171,7 @@ async def handle_close(callback: CallbackQuery):
     await callback.answer()
 
 
-
-
-
-
+@router.callback_query(lambda c: c.data == "reg_back")
+async def handle_reg_back(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.answer()
