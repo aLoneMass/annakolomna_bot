@@ -4,6 +4,7 @@ from aiogram.types import BotCommand
 from config import BOT_TOKEN
 from bot.handlers import start, schedule, registration, admin
 from bot.keyboards import event_nav
+from bot.background.notifications import notify_users
 
 
 
@@ -25,11 +26,17 @@ async def main():
     dp.include_router(event_nav.router)
     dp.include_router(registration.router)
     dp.include_router(admin.router)
+    
 
     print('Бот запущен')
 
+    asyncio.create_task(notify_users())
+
     await setup_bot_commands(bot)
+    await dp.start_polling(bot)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
     asyncio.run(main())
+    
+    
