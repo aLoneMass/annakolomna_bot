@@ -26,6 +26,11 @@ async def handle_navigation(callback: CallbackQuery):
     templates = get_all_templates()
     total = len(templates)
 
+    if total == 0:
+        await callback.message.answer("🔔 Сейчас нет доступных мастер-классов. Следите за обновлениями!")
+        await callback.answer()
+        return
+
     # Текущий индекс получаем из callback_data
     data = callback.data
     print(f"[DEBUG handle_navigation] data:{data}")
