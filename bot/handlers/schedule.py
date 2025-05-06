@@ -20,13 +20,12 @@ router = Router()
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
-    #today = date.today().isoformat()  
-    #events = get_all_events(today)
 
     templates = get_all_templates()
     total = len(templates)
-    print("[DEBUG handle_navigation] teplates: {templates}")
-    print("[DEBUG handle_navigation] total: {total}")
+
+    print(f"[DEBUG handle_navigation] teplates: {templates}")
+    print(f"[DEBUG handle_navigation] total: {total}")
     if total == 0:
         print("[DEBUG handle_navigation] зашли в условие, когда нет событий")
         await callback.message.answer("🔔 Сейчас нет доступных мастер-классов. Следите за обновлениями!")
