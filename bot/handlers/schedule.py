@@ -25,8 +25,10 @@ async def handle_navigation(callback: CallbackQuery):
 
     templates = get_all_templates()
     total = len(templates)
-
+    print("[DEBUG handle_navigation] teplates: {templates}")
+    print("[DEBUG handle_navigation] total: {total}")
     if total == 0:
+        print("[DEBUG handle_navigation] зашли в условие, когда нет событий")
         await callback.message.answer("🔔 Сейчас нет доступных мастер-классов. Следите за обновлениями!")
         await callback.answer()
         return
