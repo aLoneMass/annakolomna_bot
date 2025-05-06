@@ -8,6 +8,7 @@ from config import BOT_TOKEN
 bot = Bot(token=BOT_TOKEN)
 
 async def notify_users():
+    print("[DEBUG notify_users]")
     while True:
         now = datetime.now()
         with sqlite3.connect(DB_PATH) as conn:
@@ -25,5 +26,7 @@ async def notify_users():
                 if timedelta(hours=0) < delta <= timedelta(hours=1):
                     await bot.send_message(user_id, f"Напоминаем! Через час начнется мастер-класс: {title}, по адресу: {location}")
                 elif timedelta(days=0) < delta <= timedelta(days=1):
+                    await bot.send_message(user_id, f"Завтра состоится мастер-класс: {title}, по адресу: {location}")
+                elif timedelta(days=2) < delta <= timedelta(days=3):
                     await bot.send_message(user_id, f"Завтра состоится мастер-класс: {title}, по адресу: {location}")
         await asyncio.sleep(1800)  # Проверять каждые 30 минут
