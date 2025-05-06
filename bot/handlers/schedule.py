@@ -44,11 +44,17 @@ async def handle_navigation(callback: CallbackQuery):
             qr_path, payment_link, location, photo_uniq
         ) = template
 
+        #location_text = location
+        if location.startswith("http://") or location.startswith("https://"):
+            location_part = f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+        else:
+            location_part = f"📍 {location}\n"
+
         print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {photo_uniq}")
         caption = (
             f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
-            f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+            f"{location_part}"
             f"💵 Стоимость: {price}"
             #f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
