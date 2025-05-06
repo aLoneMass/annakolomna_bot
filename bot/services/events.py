@@ -45,11 +45,26 @@ def get_all_events(query: str | int):
         return events
 
 
+# Старая функция выводит все шаблоны
+# def get_all_templates():
+#     with sqlite3.connect(DB_PATH) as conn:
+#         cursor = conn.cursor()
+#         cursor.execute("""
+#             SELECT
+#                 id, title, description, price,
+#                 qr_path, payment_link, location, photo_path
+#             FROM event_templates
+#             ORDER BY id;
+#         """)
+#         return cursor.fetchall()
+
+
+# Новая функция выводит все шаблоны от текущей даты
 def get_all_templates():
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT DISTINCT et.id, et.title, et.description, et.price, et.qr_path, et.payment_link, et.location, et.photo_uniq
+            SELECT DISTINCT et.id, et.title, et.description, et.price, et.qr_path, et.payment_link, et.location, et.photo_path 
             FROM event_templates et
             JOIN events e ON e.template_id = et.id
             WHERE date(e.date) >= date('now')
