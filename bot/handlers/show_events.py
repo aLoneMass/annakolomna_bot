@@ -71,6 +71,7 @@ async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(0, len(templates), template[0])
 
+    print(f"[DEBUG show_events]:template: {template}")
     await callback.message.answer_photo(photo=template[3], caption=text, reply_markup=keyboard, parse_mode="HTML")
     await callback.answer()
     
