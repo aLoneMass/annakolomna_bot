@@ -67,7 +67,7 @@ async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
 
     template = templates[0]
     #schedule = get_schedule_for_template(template[0])
-    schedule = get_schedule_for_template(template)
+    schedule = get_schedule_for_template(template[0])
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(0, len(templates), template[0])
 
