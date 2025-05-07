@@ -5,26 +5,27 @@ from aiogram.fsm.context import FSMContext
 import sqlite3
 from datetime import datetime
 from config import GROUP_CHAT_ID
+from bot.services.events import get_all_templates, get_schedule_for_template
 
 router = Router()
 
-# === Получение всех шаблонов мероприятий ===
-def get_event_templates():
-    conn = sqlite3.connect("database/annakolomna.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, title, description, photo_path, price, location, payment_link FROM event_templates")
-    templates = cursor.fetchall()
-    conn.close()
-    return templates
+# # === Получение всех шаблонов мероприятий ===
+# def get_event_templates():
+#     conn = sqlite3.connect("database/annakolomna.db")
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT id, title, description, photo_path, price, location, payment_link FROM event_templates")
+#     templates = cursor.fetchall()
+#     conn.close()
+#     return templates
 
-# === Получение дат и времени для шаблона ===
-def get_event_schedule(template_id: int):
-    conn = sqlite3.connect("database/annakolomna.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT date, time FROM events WHERE template_id = ? ORDER BY date, time", (template_id,))
-    raw = cursor.fetchall()
-    conn.close()
-    return [f"{d} {t[:5]}" for d, t in raw]
+# # === Получение дат и времени для шаблона ===
+# def get_event_schedule(template_id: int):
+#     conn = sqlite3.connect("database/annakolomna.db")
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT date, time FROM events WHERE template_id = ? ORDER BY date, time", (template_id,))
+#     raw = cursor.fetchall()
+#     conn.close()
+#     return [f"{d} {t[:5]}" for d, t in raw]
 
 # === Формирование текста мероприятия ===
 def format_event_message(template, schedule):
@@ -55,7 +56,7 @@ def generate_keyboard(index: int, total: int, template_id: int):
 @router.callback_query(F.data == "show_events")
 async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     print("[DEBUG show_events]")
-    templates = get_event_templates()
+    templates = get_all_templates()
     if not templates:
         await callback.message.answer("Нет запланированных мероприятий.")
         await callback.answer()
@@ -65,7 +66,8 @@ async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(event_index=0)
 
     template = templates[0]
-    schedule = get_event_schedule(template[0])
+    #schedule = get_schedule_for_template(template[0])
+    schedule = get_schedule_for_template(template)
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(0, len(templates), template[0])
 
@@ -87,7 +89,7 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
 
     await state.update_data(event_index=index)
     template = templates[index]
-    schedule = get_event_schedule(template[0])
+    schedule = get_schedule_for_template(template[0])
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(index, len(templates), template[0])
 
@@ -107,7 +109,7 @@ async def publish_handler(callback: CallbackQuery):
     template = cursor.fetchone()
     conn.close()
 
-    schedule = get_event_schedule(template_id)
+    schedule = get_schedule_for_template(template_id)
     text = format_event_message((template_id, *template), schedule)
 
     try:

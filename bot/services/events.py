@@ -45,20 +45,6 @@ def get_all_events(query: str | int):
         return events
 
 
-# Старая функция выводит все шаблоны
-# def get_all_templates():
-#     with sqlite3.connect(DB_PATH) as conn:
-#         cursor = conn.cursor()
-#         cursor.execute("""
-#             SELECT
-#                 id, title, description, price,
-#                 qr_path, payment_link, location, photo_path
-#             FROM event_templates
-#             ORDER BY id;
-#         """)
-#         return cursor.fetchall()
-
-
 # Новая функция выводит все шаблоны от текущей даты
 def get_all_templates():
     with sqlite3.connect(DB_PATH) as conn:
@@ -94,3 +80,17 @@ def get_event_by_id(event_id: int):
             WHERE e.id = ?
         """, (event_id,))
         return cur.fetchone()
+
+
+
+# Получим расписание (дату и время) для шаблона по id
+def get_schedule_for_template(template_id: int):
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT date, time
+            FROM events
+            WHERE template_id = ?
+            ORDER BY date, time
+        """, (template_id,))
+        return cur.fetchall()
