@@ -20,11 +20,17 @@ router = Router()
 @router.callback_query(lambda c: c.data.startswith(("next_", "prev_")))  #роутер срабатывает на нажите кнопок которые возвращают значение next_ и prev_
 async def handle_navigation(callback: CallbackQuery):
     print("[DEBUG handle_navigation]")
-    #today = date.today().isoformat()  
-    #events = get_all_events(today)
 
     templates = get_all_templates()
     total = len(templates)
+
+    print(f"[DEBUG handle_navigation] teplates: {templates}")
+    print(f"[DEBUG handle_navigation] total: {total}")
+    if total == 0:
+        print("[DEBUG handle_navigation] зашли в условие, когда нет событий")
+        await callback.message.answer("🔔 Сейчас нет доступных мастер-классов. Следите за обновлениями!")
+        await callback.answer()
+        return
 
     # Текущий индекс получаем из callback_data
     data = callback.data
@@ -38,11 +44,17 @@ async def handle_navigation(callback: CallbackQuery):
             qr_path, payment_link, location, photo_uniq
         ) = template
 
+        #location_text = location
+        if location.startswith("http://") or location.startswith("https://"):
+            location_part = f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+        else:
+            location_part = f"📍 {location}\n"
+
         print(f"[DEBUG handle_navigation] отладка для  Фото: filename: {photo_uniq}")
         caption = (
             f"🍯 <b>{title}</b>\n"
             f"📌 <b>{description}</b>\n"
-            f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+            f"{location_part}"
             f"💵 Стоимость: {price}"
             #f"\n💳 <a href=\"{payment_link}\">Ссылка для оплаты</a>"
         )
