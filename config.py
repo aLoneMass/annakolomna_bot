@@ -9,3 +9,4 @@ DB_PATH = 'database/db.sqlite3'
 PHOTO_DIR = 'data/event_photos/'
 CHECKS_DIR = 'data/payment_checks/'
 QR_DIR = 'data/qr_codes/'
+GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID'))
