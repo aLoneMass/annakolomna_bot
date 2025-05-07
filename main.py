@@ -5,6 +5,7 @@ from config import BOT_TOKEN
 from bot.handlers import start, schedule, registration, admin
 from bot.keyboards import event_nav
 from bot.background.notifications import notify_users
+from bot.handlers.show_events import router as events_router
 
 
 
@@ -26,6 +27,7 @@ async def main():
     dp.include_router(event_nav.router)
     dp.include_router(registration.router)
     dp.include_router(admin.router)
+    dp.include_router(events_router)
     
 
     print('Бот запущен')
