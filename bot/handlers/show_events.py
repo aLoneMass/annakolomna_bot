@@ -55,6 +55,7 @@ async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     keyboard = generate_keyboard(0, len(templates), template[0])
 
     print(f"[DEBUG show_events]:template: {template}")
+    await state.update_data(template=template, text=text)
     await callback.message.answer_photo(photo=template[7], caption=text, reply_markup=keyboard, parse_mode="HTML")
     await callback.answer()
     
@@ -77,6 +78,7 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
     schedule = get_schedule_for_template(template[0])
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(index, len(templates), template[0])
+    await state.update_data(template=template, text=text)
     try:
         await callback.message.edit_media(
             types.InputMediaPhoto(media=template[7], caption=text, parse_mode="HTML"),
@@ -89,22 +91,26 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
 
 # === Публикация в группу ===
 @router.callback_query(F.data.startswith("event_pub_"))
-async def publish_handler(callback: CallbackQuery):
+async def publish_handler(callback: CallbackQuery, state: FSMContext):
     print("[DEBUG publish_handler]")
-    template_id = int(callback.data.split("_")[-1])
-    conn = sqlite3.connect("database/annakolomna.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT title, description, photo_path, price, location FROM event_templates WHERE id = ?", (template_id,))
-    template = cursor.fetchone()
-    conn.close()
+    data = await state.get_data()
+    template = data["template"]
+    text = data["text"]
 
-    schedule = get_schedule_for_template(template_id)
-    text = format_event_message((template_id, *template), schedule)
+    # template_id = int(callback.data.split("_")[-1])
+    # conn = sqlite3.connect("database/annakolomna.db")
+    # cursor = conn.cursor()
+    # cursor.execute("SELECT title, description, photo_path, price, location FROM event_templates WHERE id = ?", (template_id,))
+    # template = cursor.fetchone()
+    # conn.close()
+
+    # schedule = get_schedule_for_template(template_id)
+    # text = format_event_message((template_id, *template), schedule)
 
     try:
         await callback.bot.send_photo(
             chat_id=GROUP_CHAT_ID,
-            photo=template[2],
+            photo=template[7],
             caption=text,
             parse_mode="HTML"
         )
