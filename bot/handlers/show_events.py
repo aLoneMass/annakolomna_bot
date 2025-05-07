@@ -9,27 +9,9 @@ from bot.services.events import get_all_templates, get_schedule_for_template
 
 router = Router()
 
-# # === Получение всех шаблонов мероприятий ===
-# def get_event_templates():
-#     conn = sqlite3.connect("database/annakolomna.db")
-#     cursor = conn.cursor()
-#     cursor.execute("SELECT id, title, description, photo_path, price, location, payment_link FROM event_templates")
-#     templates = cursor.fetchall()
-#     conn.close()
-#     return templates
-
-# # === Получение дат и времени для шаблона ===
-# def get_event_schedule(template_id: int):
-#     conn = sqlite3.connect("database/annakolomna.db")
-#     cursor = conn.cursor()
-#     cursor.execute("SELECT date, time FROM events WHERE template_id = ? ORDER BY date, time", (template_id,))
-#     raw = cursor.fetchall()
-#     conn.close()
-#     return [f"{d} {t[:5]}" for d, t in raw]
-
 # === Формирование текста мероприятия ===
 def format_event_message(template, schedule):
-    title, desc, price, location = template[1], template[2], template[4], template[5]
+    title, desc, price, location = template[1], template[2], template[3], template[6]
     link = f"https://t.me/Annakolomnabot?start=event_{template[0]}"
     schedule_text = "\n".join(f"• {dt}" for dt in schedule)
 
@@ -95,7 +77,7 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
     keyboard = generate_keyboard(index, len(templates), template[0])
 
     await callback.message.edit_media(
-        types.InputMediaPhoto(media=template[3], caption=text, parse_mode="HTML"),
+        types.InputMediaPhoto(media=template[7], caption=text, parse_mode="HTML"),
         reply_markup=keyboard
     )
     await callback.answer()
