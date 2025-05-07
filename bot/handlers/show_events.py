@@ -89,6 +89,7 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
 # === Публикация в группу ===
 @router.callback_query(F.data.startswith("event_pub_"))
 async def publish_handler(callback: CallbackQuery):
+    print("[DEBUG publish_handler]")
     template_id = int(callback.data.split("_")[-1])
     conn = sqlite3.connect("database/annakolomna.db")
     cursor = conn.cursor()
