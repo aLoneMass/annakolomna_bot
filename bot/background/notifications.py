@@ -23,17 +23,18 @@ async def notify_users():
             for user_id, date_str, time_str, title, location in cur.fetchall():
                 event_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
                 delta = event_dt - now
-                if timedelta(minutes=0) < delta <= timedelta(minutes=5):
-                    await bot.send_message(user_id, f"Напоминаем! Через 5 минут начнется мастер-класс: {title}, по адресу: {location}")
-                elif timedelta(minutes=10) < delta <= timedelta(minutes=15):
-                    await bot.send_message(user_id, f"Напоминаем! Через 15 минут начнется мастер-класс: {title}, по адресу: {location}")
+                # if timedelta(minutes=0) < delta <= timedelta(minutes=5):
+                #     await bot.send_message(user_id, f"Напоминаем! Через 5 минут начнется мастер-класс: {title}, по адресу: {location}")
+                # elif timedelta(minutes=10) < delta <= timedelta(minutes=15):
+                #     await bot.send_message(user_id, f"Напоминаем! Через 15 минут начнется мастер-класс: {title}, по адресу: {location}")
 
 
                 if timedelta(hours=0) < delta <= timedelta(hours=1):
                     await bot.send_message(user_id, f"Напоминаем! Через час начнется мастер-класс: {title}, по адресу: {location}")
                 elif timedelta(days=0) < delta <= timedelta(days=1):
                     await bot.send_message(user_id, f"Завтра состоится мастер-класс: {title}, по адресу: {location}")
-                elif timedelta(days=2) < delta <= timedelta(days=3):
-                    await bot.send_message(user_id, f"Завтра состоится мастер-класс: {title}, по адресу: {location}")
-        #await asyncio.sleep(1800)  # Проверять каждые 30 минут
-        await asyncio.sleep(300)  # Проверять каждые 5 минут
+                # elif timedelta(days=2) < delta <= timedelta(days=3):
+                #     await bot.send_message(user_id, f"Завтра состоится мастер-класс: {title}, по адресу: {location}")
+                
+        await asyncio.sleep(1800)  # Проверять каждые 30 минут
+        #await asyncio.sleep(300)  # Проверять каждые 5 минут
