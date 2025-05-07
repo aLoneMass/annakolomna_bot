@@ -6,6 +6,7 @@ import sqlite3
 from datetime import datetime
 from config import GROUP_CHAT_ID
 from bot.services.events import get_all_templates, get_schedule_for_template
+from aiogram.exceptions import TelegramBadRequest
 
 router = Router()
 
@@ -75,11 +76,14 @@ async def navigation_handler(callback: CallbackQuery, state: FSMContext):
     schedule = get_schedule_for_template(template[0])
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(index, len(templates), template[0])
-
-    await callback.message.edit_media(
-        types.InputMediaPhoto(media=template[7], caption=text, parse_mode="HTML"),
-        reply_markup=keyboard
-    )
+    try:
+        await callback.message.edit_media(
+            types.InputMediaPhoto(media=template[7], caption=text, parse_mode="HTML"),
+            reply_markup=keyboard
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 # === Публикация в группу ===
