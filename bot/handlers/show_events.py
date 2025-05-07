@@ -16,11 +16,16 @@ def format_event_message(template, schedule):
     link = f"https://t.me/Annakolomnabot?start=event_{template[0]}"
     schedule_text = "\n".join(f"• {dt}" for dt in schedule)
 
+    if location.startswith("http://") or location.startswith("https://"):
+        location_part = f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+    else:
+        location_part = f"📍 {location}\n"
+        
     return (
         f"<b>{title}</b>\n\n"
         f"{desc}\n\n"
         f"<b>📅 Когда:</b>\n{schedule_text}\n\n"
-        f"<b>📍 Где:</b> {location}\n"
+        f"<b>📍 Где:</b> {location_part}\n"
         f"<b>💰 Стоимость:</b> {price} ₽\n\n"
         f"👉 <a href=\"{link}\">Записаться на мастер-класс</a>"
     )
