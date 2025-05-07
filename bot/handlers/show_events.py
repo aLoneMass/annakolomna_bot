@@ -60,7 +60,8 @@ async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     
 
 # === Навигация вперёд/назад ===
-@router.callback_query(F.data.startswith("event_"))
+#@router.callback_query(F.data.startswith("event_"))
+@router.callback_query(F.data.startswith("event_next_") | F.data.startswith("event_prev_"))
 async def navigation_handler(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     templates = data.get("templates", [])
