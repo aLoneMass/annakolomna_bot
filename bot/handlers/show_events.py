@@ -36,8 +36,8 @@ def format_event_message(template, schedule):
     return (
         f"<b>{title}</b>\n\n"
         f"{desc}\n\n"
-        f"<b>📅 Даты и время:</b>\n{schedule_text}\n\n"
-        f"<b>📍 Локация:</b> {location}\n"
+        f"<b>📅 Когда:</b>\n{schedule_text}\n\n"
+        f"<b>📍 Где:</b> {location}\n"
         f"<b>💰 Стоимость:</b> {price} ₽\n\n"
         f"👉 <a href=\"{link}\">Записаться на мастер-класс</a>"
     )
