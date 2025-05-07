@@ -52,12 +52,13 @@ def generate_keyboard(index: int, total: int, template_id: int):
     return InlineKeyboardMarkup(inline_keyboard=[buttons, [buttons_pub]])
 
 # === /show_events ===
-@router.message(Command("show_events"))
-async def show_events_handler(message: types.Message, state: FSMContext):
+@router.callback_query(F.data == "show_events")
+async def show_events_handler(callback: types.CallbackQuery, state: FSMContext):
     print("[DEBUG show_events]")
     templates = get_event_templates()
     if not templates:
-        await message.answer("Нет запланированных мероприятий.")
+        await callback.message.answer("Нет запланированных мероприятий.")
+        await callback.answer()
         return
 
     await state.update_data(templates=templates)
@@ -68,7 +69,8 @@ async def show_events_handler(message: types.Message, state: FSMContext):
     text = format_event_message(template, schedule)
     keyboard = generate_keyboard(0, len(templates), template[0])
 
-    await message.answer_photo(photo=template[3], caption=text, reply_markup=keyboard, parse_mode="HTML")
+    await callback.message.answer_photo(photo=template[3], caption=text, reply_markup=keyboard, parse_mode="HTML")
+    await callback.answer()
     
 
 # === Навигация вперёд/назад ===
