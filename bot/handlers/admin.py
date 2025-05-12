@@ -324,18 +324,18 @@ def split_message(text: str, max_length=MAX_MESSAGE_LENGTH) -> list[str]:
 
 
 
+request_contact_kb = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="📱 Поделиться номером", request_contact=True)]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
 
 @router.callback_query(F.data == "send_link")
-async def start_handler(message: Message):
-    request_contact_kb = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📱 Поделиться номером", request_contact=True)]
-        ],
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
+async def cmd_start(message: Message):
     await message.answer(
-        "Пожалуйста, поделитесь своим номером телефона:",
+        "Здравствуйте! Пожалуйста, поделитесь своим номером телефона:",
         reply_markup=request_contact_kb
     )
 
@@ -351,9 +351,11 @@ async def send_link_past_event(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(F.contact)
-async def contact_handler(message: Message):
+async def handle_contact(message: Message):
     phone = message.contact.phone_number
-    user_id = message.from_user.id
-    await message.answer(f"Спасибо! Мы получили ваш номер: {phone}")
-
+    user = message.from_user
+    await message.answer(
+        f"✅ Спасибо, {user.first_name}!\nВаш номер: <code>{phone}</code>",
+        reply_markup=None  # убираем клавиатуру
+    )
 
