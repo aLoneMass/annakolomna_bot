@@ -10,6 +10,9 @@ import sqlite3, re
 from config import DB_PATH
 from config import ADMINS 
 from datetime import datetime, date
+from bot.services.events import get_past_events
+
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 router = Router()
 MAX_MESSAGE_LENGTH = 4000  # запас, чтобы не упереться в лимит
@@ -23,6 +26,7 @@ async def admin_menu(message: Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📋 Участники", callback_data="show_registrations")],
         [InlineKeyboardButton(text="📅 Мероприятия", callback_data="show_events")],
+        [InlineKeyboardButton(text="📸 Отправить ссылку фото", callback_data="send_link")],
         [InlineKeyboardButton(text="📅 Добавить Мастер-класс", callback_data="create_event")],
         [InlineKeyboardButton(text="❌ Закрыть", callback_data="close")]
     ])
@@ -317,3 +321,39 @@ def split_message(text: str, max_length=MAX_MESSAGE_LENGTH) -> list[str]:
     if text:
         parts.append(text)
     return parts
+
+
+
+
+@router.callback_query(F.data == "send_link")
+async def start_handler(message: Message):
+    request_contact_kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📱 Поделиться номером", request_contact=True)]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    await message.answer(
+        "Пожалуйста, поделитесь своим номером телефона:",
+        reply_markup=request_contact_kb
+    )
+
+#@router.callback_query(F.data == "send_link")
+async def send_link_past_event(callback: CallbackQuery, state: FSMContext):
+    events = get_past_events()
+    if events == 0:
+        return
+    (template_id, title, description, price,
+            qr_path, payment_link, location, photo_uniq
+        ) = events
+
+
+
+@router.message(F.contact)
+async def contact_handler(message: Message):
+    phone = message.contact.phone_number
+    user_id = message.from_user.id
+    await message.answer(f"Спасибо! Мы получили ваш номер: {phone}")
+
+

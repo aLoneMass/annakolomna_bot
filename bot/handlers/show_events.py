@@ -17,10 +17,10 @@ def format_event_message(template, schedule):
     schedule_text = "\n".join(f"• {dt}" for dt in schedule)
 
     if location.startswith("http://") or location.startswith("https://"):
-        location_part = f"📍 <a href=\"{location}\">Адрес тут</a>\n"
+        location_part = f"<a href=\"{location}\">Адрес тут</a>\n"
     else:
         location_part = f"📍 {location}\n"
-        
+
     return (
         f"<b>{title}</b>\n\n"
         f"{desc}\n\n"

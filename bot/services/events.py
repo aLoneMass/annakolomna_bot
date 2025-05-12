@@ -94,3 +94,17 @@ def get_schedule_for_template(template_id: int):
             ORDER BY date, time
         """, (template_id,))
         return cur.fetchall()
+
+
+# Выберем последние события, упорядочим по убыванию и отобразим первые 10 штук
+def get_past_events():
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT DISTINCT et.id, et.title, et.description, et.price, et.qr_path, et.payment_link, et.location, et.photo_path 
+            FROM event_templates et
+            JOIN events e ON e.template_id = et.id
+            WHERE date(e.date) <= date('now')
+            ORDER BY e.date DESC;
+        """)
+        return cursor.fetchmany(10)
