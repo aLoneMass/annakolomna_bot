@@ -102,15 +102,6 @@ async def publish_handler(callback: CallbackQuery, state: FSMContext):
     template = data["template"]
     text = data["text"]
 
-    # template_id = int(callback.data.split("_")[-1])
-    # conn = sqlite3.connect("database/annakolomna.db")
-    # cursor = conn.cursor()
-    # cursor.execute("SELECT title, description, photo_path, price, location FROM event_templates WHERE id = ?", (template_id,))
-    # template = cursor.fetchone()
-    # conn.close()
-
-    # schedule = get_schedule_for_template(template_id)
-    # text = format_event_message((template_id, *template), schedule)
 
     try:
         await callback.bot.send_photo(

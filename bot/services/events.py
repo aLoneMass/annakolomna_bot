@@ -108,3 +108,25 @@ def get_past_events():
             ORDER BY e.date DESC;
         """)
         return cursor.fetchmany(10)
+
+
+
+
+def get_upcoming_events_with_templates(now: datetime) -> List[Tuple[int, str, str, str, str]]:
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT e.id, e.date, e.time, t.title, t.location
+            FROM events e
+            JOIN event_templates t ON e.template_id = t.id
+            WHERE datetime(e.date || ' ' || e.time) > ?
+        """, (now.isoformat(),))
+        return cur.fetchall()
+    
+
+
+def get_event_registrations(event_id: int) -> List[int]:
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT user_id FROM registrations WHERE event_id = ?", (event_id,))
+        return [row[0] for row in cur.fetchall()]

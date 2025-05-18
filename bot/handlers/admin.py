@@ -324,22 +324,8 @@ def split_message(text: str, max_length=MAX_MESSAGE_LENGTH) -> list[str]:
 
 
 
-request_contact_kb = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="📱 Поделиться номером", request_contact=True)]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-)
 
 @router.callback_query(F.data == "send_link")
-async def cmd_start(message: Message):
-    await message.answer(
-        "Здравствуйте! Пожалуйста, поделитесь своим номером телефона:",
-        reply_markup=request_contact_kb
-    )
-
-#@router.callback_query(F.data == "send_link")
 async def send_link_past_event(callback: CallbackQuery, state: FSMContext):
     events = get_past_events()
     if events == 0:
@@ -347,15 +333,9 @@ async def send_link_past_event(callback: CallbackQuery, state: FSMContext):
     (template_id, title, description, price,
             qr_path, payment_link, location, photo_uniq
         ) = events
-
-
-
-@router.message(F.contact)
-async def handle_contact(message: Message):
-    phone = message.contact.phone_number
-    user = message.from_user
-    await message.answer(
-        f"✅ Спасибо, {user.first_name}!\nВаш номер: <code>{phone}</code>",
-        reply_markup=None  # убираем клавиатуру
-    )
-
+    
+    if not events:
+        await callback.message.answer("Нет запланированных мероприятий.")
+        await callback.answer()
+        return
+    
