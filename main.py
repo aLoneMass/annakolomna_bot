@@ -4,7 +4,7 @@ from aiogram.types import BotCommand
 from config import BOT_TOKEN
 from bot.handlers import start, schedule, registration, admin
 from bot.keyboards import event_nav
-from bot.background.notifications import notify_users, scheduler, prepare_all_notifications
+from bot.background.notifications import scheduler, prepare_all_notifications
 from bot.handlers.show_events import router as events_router
 
 
