@@ -35,7 +35,7 @@ async def main():
 
     print('Бот запущен')
 
-    asyncio.create_task(notify_users())
+    #asyncio.create_task(notify_users())
 
     await setup_bot_commands(bot)
     await dp.start_polling(bot)
