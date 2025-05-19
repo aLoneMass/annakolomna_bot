@@ -4,6 +4,8 @@ from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from bot.services.events import get_upcoming_events_with_templates, get_event_registrations
+from bot.background.notifications import scheduler, prepare_all_notifications
+
 from config import DB_PATH
 from aiogram import Bot
 from config import BOT_TOKEN
